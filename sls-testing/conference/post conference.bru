@@ -1,0 +1,20 @@
+meta {
+  name: post conference
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/conference
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name":"conference test 2",
+    "building":"building name",
+    "street":"street name",
+    "suburb":"suburb name"
+  }
+}
