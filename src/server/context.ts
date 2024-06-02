@@ -1,9 +1,11 @@
 import { Config } from "../config";
-import { initalise as initaliseConferenceContext } from "./conference/context";
+import { initialise as initialiseConferenceContext } from "./conference/context";
 import { initialiseSpeakerContext } from "./speaker/context";
+import { initialiseSessionContext } from "./session/context";
 
-export function initalise(config: Config) {
-  const conferenceContext = initaliseConferenceContext(config);
+export function initialise(config: Config) {
+  const conferenceContext = initialiseConferenceContext(config);
   const speakerContext = initialiseSpeakerContext(config);
-  return { ...conferenceContext, ...speakerContext };
+  const sessionContext = initialiseSessionContext(config);
+  return { ...conferenceContext, ...speakerContext, ...sessionContext };
 }

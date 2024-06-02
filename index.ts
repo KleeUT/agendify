@@ -7,7 +7,7 @@ import {
 import express, { NextFunction, Response, Request } from "express";
 
 import serverless from "serverless-http";
-import { conferenceRouter } from "./src/server/conference/conferenceRouter";
+import { conferenceRouter } from "./src/server/conference/conference-router";
 import { speakerRouter } from "./src/server/speaker/speaker-router";
 
 const app = express();

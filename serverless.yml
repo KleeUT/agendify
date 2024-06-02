@@ -49,6 +49,7 @@ resources:
     ConferenceTable:
       Type: AWS::DynamoDB::Table
       Properties:
+        TableName: ${self:custom.conferenceTableName}
         AttributeDefinitions:
           - AttributeName: pk
             AttributeType: S
@@ -60,6 +61,5 @@ resources:
           - AttributeName: sk
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:custom.conferenceTableName}
 plugins:
   - serverless-plugin-typescript

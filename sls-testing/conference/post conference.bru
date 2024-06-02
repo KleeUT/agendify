@@ -18,3 +18,7 @@ body:json {
     "suburb":"suburb name"
   }
 }
+
+script:post-response {
+  bru.setVar("conference_id", res.body.conferenceId);
+}

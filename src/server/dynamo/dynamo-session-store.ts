@@ -1,6 +1,7 @@
+import { SessionDetails, SessionModel } from "../../../types/domain/session";
+import { SessionStore } from "../session/session-store";
+
 import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
-import { SpeakerModel } from "../../../types/domain/speaker";
-import { SpeakerStore } from "../speaker/speaker-store";
 import {
   DynamoDBDocumentClient,
   GetCommand,
@@ -13,9 +14,9 @@ let dynamoClient: DynamoDBClient;
 
 const SORT_KEY_PREFIX = "SPEAKER#";
 
-const sortKey = (speakerId: string) => `${SORT_KEY_PREFIX}${speakerId}`;
+const sortKey = (sessionId: string) => `${SORT_KEY_PREFIX}${sessionId}`;
 
-export class DynamoSpeakerStore implements SpeakerStore {
+export class DynamoSessionStore implements SessionStore {
   private readonly dynamoDocumentClient: DynamoDBDocumentClient;
   constructor(private readonly config: Config) {
     if (!dynamoClient) {
@@ -23,44 +24,42 @@ export class DynamoSpeakerStore implements SpeakerStore {
     }
     this.dynamoDocumentClient = DynamoDBDocumentClient.from(dynamoClient);
   }
-  async addSpeaker(model: SpeakerModel): Promise<void> {
+  async addSession(session: SessionModel): Promise<void> {
     const putCommand = new PutCommand({
       TableName: this.config.conferenceTable,
       Item: {
-        pk: partitionKeyFor(model.conferenceId),
-        sk: sortKey(model.id),
-        id: model.id,
-        name: model.name,
-        bio: model.bio,
-        picture: model.picture,
-        socials: model.socials,
+        pk: partitionKeyFor(session.conferenceId),
+        sk: sortKey(session.sessionId),
+        speakerIds: session.speakerIds,
+        title: session.title,
+        abstract: session.abstract,
+        tags: session.tags,
       },
     });
-
     await this.dynamoDocumentClient.send(putCommand);
   }
-  async getSpeaker({
+
+  async getSession({
     conferenceId,
-    speakerId,
+    sessionId,
   }: {
     conferenceId: string;
-    speakerId: string;
-  }): Promise<SpeakerModel> {
+    sessionId: string;
+  }): Promise<SessionDetails> {
     const getCommand = new GetCommand({
       TableName: this.config.conferenceTable,
       Key: {
         pk: partitionKeyFor(conferenceId),
-        sk: sortKey(speakerId),
+        sk: sortKey(sessionId),
       },
     });
 
     const getResponse = await this.dynamoDocumentClient.send(getCommand);
-
     if (getResponse.Item) {
       console.log("response", getResponse.Item);
-      return getResponse.Item as SpeakerModel; // TODO get the details out correctly
+      return getResponse.Item as SessionModel; // TODO get the details out correctly
     }
-    console.log(`item not found for ${conferenceId} speaker ${speakerId}`);
-    throw new Error(`item not found for ${conferenceId} speaker ${speakerId}`);
+    console.log(`item not found for ${conferenceId} speaker ${sessionId}`);
+    throw new Error(`item not found for ${conferenceId} speaker ${sessionId}`);
   }
 }

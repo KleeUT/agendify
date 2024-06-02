@@ -1,8 +1,10 @@
-import { SpeakerWriteService } from "../../../types/domain/speaker-write-service";
-import { SpeakerDetails } from "../../../types/speaker";
+import {
+  SpeakerWriteService,
+  SpeakerReadService,
+} from "../../../types/domain/speaker";
+import { SpeakerDetails } from "../../../types/domain/speaker";
 import { randomUUID } from "crypto";
 import { SpeakerStore } from "./speaker-store";
-import { SpeakerReadService } from "../../../types/domain/speaker-read-service";
 export class SpeakerService implements SpeakerWriteService, SpeakerReadService {
   constructor(private readonly speakerStore: SpeakerStore) {}
   async addSpeaker(

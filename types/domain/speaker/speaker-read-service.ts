@@ -1,4 +1,4 @@
-import { SpeakerDetails } from "../speaker";
+import { SpeakerDetails } from "./speaker";
 
 export interface SpeakerReadService {
   getSpeaker(props: {

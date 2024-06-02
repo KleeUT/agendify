@@ -1,5 +1,7 @@
-import { SpeakerReadService } from "../../../types/domain/speaker-read-service";
-import { SpeakerWriteService } from "../../../types/domain/speaker-write-service";
+import {
+  SpeakerReadService,
+  SpeakerWriteService,
+} from "../../../types/domain/speaker";
 import { Config } from "../../config";
 import { DynamoSpeakerStore } from "../dynamo/dynamo-speaker-store";
 import { SpeakerService } from "./speaker-service";

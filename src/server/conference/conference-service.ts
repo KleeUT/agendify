@@ -1,11 +1,12 @@
-import { ConferenceWriteService } from "../../../types/domain/conference-write-service";
 import {
+  ConferenceReadService,
+  ConferenceWriteService,
   ConferenceCreationRequest,
   ConferenceDetails,
 } from "../../../types/domain/conference";
-import { DynamoConferenceStore } from "../dynamo/dynamo-conference-store";
+
+import { DynamoConferenceStore } from "../dynamo";
 import { randomUUID } from "crypto";
-import { ConferenceReadService } from "../../../types/domain/conference-read-service";
 export class ConferenceService
   implements ConferenceWriteService, ConferenceReadService
 {
@@ -24,7 +25,7 @@ export class ConferenceService
     return id;
   }
   async getConference(conferenceId: string): Promise<ConferenceDetails> {
-    const ConferenceDetails = await this.store.getConference(conferenceId);
-    return ConferenceDetails;
+    const conferenceDetails = await this.store.getConference(conferenceId);
+    return conferenceDetails;
   }
 }

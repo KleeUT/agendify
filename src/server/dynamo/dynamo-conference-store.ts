@@ -6,7 +6,7 @@ import {
   GetCommand,
   PutCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { ConferenceStore } from "../conference/ConferenceStore";
+import { ConferenceStore } from "../conference/conference-store";
 import { partitionKeyFor } from "./utils";
 
 const SORT_KEY_PREFIX = "CONF#";

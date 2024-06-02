@@ -1,4 +1,4 @@
-import { initalise } from "../context";
+import { initialise } from "../context";
 
 import { Router } from "express";
 import { config } from "../../config";
@@ -7,7 +7,7 @@ import { findMissingProperties } from "../../utils/findMissingProperties";
 const conferenceRouter = Router({});
 
 conferenceRouter.get("/conference/:conferenceId", async (req, res) => {
-  const context = initalise(config);
+  const context = initialise(config);
   const conf = await context.conferenceReadService.getConference(
     req.params.conferenceId
   );
@@ -16,7 +16,7 @@ conferenceRouter.get("/conference/:conferenceId", async (req, res) => {
 
 conferenceRouter.post("/conference", async (req, res) => {
   const body = req.body;
-  const context = initalise(config);
+  const context = initialise(config);
   const missing = findMissingProperties(body, [
     "name",
     "building",

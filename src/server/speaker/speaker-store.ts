@@ -1,4 +1,4 @@
-import { SpeakerModel } from "../../../types/speaker";
+import { SpeakerModel } from "../../../types/domain/speaker";
 
 export interface SpeakerStore {
   addSpeaker(model: SpeakerModel): Promise<void>;
