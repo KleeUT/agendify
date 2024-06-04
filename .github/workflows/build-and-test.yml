@@ -2,7 +2,7 @@ name: learn-github-actions
 run-name: Build
 on: [push]
 jobs:
-  check-bats-version:
+  :hammer: Build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
