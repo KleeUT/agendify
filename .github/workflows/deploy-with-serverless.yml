@@ -4,6 +4,8 @@ on:
     workflows: ["Branch"]
     types:
       - completed
+    branches:
+      - "**"
 jobs:
   deploy:
     runs-on: ubuntu-latest
