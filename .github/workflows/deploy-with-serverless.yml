@@ -1,9 +1,8 @@
 name: deploy-with-serverless
-run-name: Serverless Deploy
 on:
   workflow_run:
     workflows:
-      - Build and test
+      - build-and-test
     types:
       - completed
 
