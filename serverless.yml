@@ -1,4 +1,4 @@
-service: sls-sample
+service: agendify
 frameworkVersion: "3"
 
 custom:
