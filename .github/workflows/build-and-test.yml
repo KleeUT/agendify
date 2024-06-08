@@ -1,8 +1,8 @@
-name: learn-github-actions
+name: build-code
 run-name: Build and test
 on: [push]
 jobs:
-  deploy:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
