@@ -1,7 +1,7 @@
 name: Deploy With Serverless
 on:
   workflow_run:
-    workflows: [Branch]
+    workflows: ["Branch"]
     types:
       - completed
 jobs:
