@@ -1,22 +1,19 @@
 name: Deploy With Serverless
 on:
-  workflow_run:
-    workflows: ["Branch"]
-    types:
-      - completed
+  push:
     branches:
-      - "**"
-      - "actions"
+      - main
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'successs' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
       - run: yarn
+      - run: yarn build
+      - run: yarn test
       - name: serverless deploy
         uses: serverless/github-action@v3.2
         with:
@@ -24,8 +21,3 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  on-failure:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
-    steps:
-      - run: echo 'The triggering workflow failed'
