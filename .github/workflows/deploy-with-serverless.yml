@@ -3,12 +3,12 @@ run-name: Serverless Deploy
 on:
   workflow_run:
     workflows:
-      - build-code
+      - Build and test
     types:
       - completed
 
 jobs:
-  Deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
