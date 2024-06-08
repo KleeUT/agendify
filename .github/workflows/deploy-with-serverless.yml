@@ -1,5 +1,9 @@
 name: deploy-with-serverless
-on: [push]
+on:
+  workflow_run:
+    workflows: [build-and-test]
+    types:
+      - completed
 jobs:
   deploy:
     runs-on: ubuntu-latest
