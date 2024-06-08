@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "build": "tsc",
-    "sls:deploy": "sls deploy"
+    "sls:deploy": "sls deploy",
+    "test": "echo need to add tests"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.490.0",
