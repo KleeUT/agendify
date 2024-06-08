@@ -1,5 +1,5 @@
 name: learn-github-actions
-run-name: Build & test
+run-name: Serverless Deploy
 on: [push]
 jobs:
   build:
