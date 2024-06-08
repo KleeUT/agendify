@@ -6,6 +6,7 @@ on:
       - completed
     branches:
       - "**"
+      - "actions"
 jobs:
   deploy:
     runs-on: ubuntu-latest
