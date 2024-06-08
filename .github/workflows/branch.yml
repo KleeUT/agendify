@@ -1,11 +1,13 @@
-name: branch
+name: Branch
 on: [push]
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup node
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
       - run: yarn
