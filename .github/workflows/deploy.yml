@@ -1,8 +1,14 @@
-name: learn-github-actions
+name: deploy-with-serverless
 run-name: Serverless Deploy
-on: [push]
+on:
+  workflow_run:
+    workflows:
+      - build-code
+    types:
+      - completed
+
 jobs:
-  build:
+  Deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
