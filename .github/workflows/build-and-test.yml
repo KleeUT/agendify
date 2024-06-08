@@ -1,5 +1,5 @@
 name: learn-github-actions
-run-name: Build
+run-name: Build & test
 on: [push]
 jobs:
   build:
@@ -11,3 +11,11 @@ jobs:
           node-version: "20"
       - run: yarn
       - run: yarn build
+      - run: yarn test
+      - name: serverless deploy
+        uses: serverless/github-action@v3.2
+        with:
+          args: deploy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
