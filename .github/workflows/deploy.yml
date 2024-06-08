@@ -2,15 +2,12 @@ name: learn-github-actions
 run-name: Deploy
 on: [push]
 jobs:
-  strategy:
-    matrix:
-      node-version: [20.x]
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{matrix.node-version}}
+          node-version: 20.x
       - run: yarn
       - run: yarn publish
