@@ -1,11 +1,7 @@
 import { ConferenceDetails } from "../../../types/domain/conference";
 import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
 import { Config } from "../../config";
-import {
-  DynamoDBDocumentClient,
-  GetCommand,
-  PutCommand,
-} from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { ConferenceStore } from "../conference/conference-store";
 import { partitionKeyFor } from "./utils";
 

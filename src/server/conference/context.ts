@@ -11,7 +11,7 @@ export function initialise(config: Config): {
   conferenceReadService: ConferenceReadService;
 } {
   const conferenceService = new ConferenceService(
-    new DynamoConferenceStore(config)
+    new DynamoConferenceStore(config),
   );
   return {
     conferenceWriteService: conferenceService,

@@ -9,7 +9,7 @@ const conferenceRouter = Router({});
 conferenceRouter.get("/conference/:conferenceId", async (req, res) => {
   const context = initialise(config);
   const conf = await context.conferenceReadService.getConference(
-    req.params.conferenceId
+    req.params.conferenceId,
   );
   res.json(conf);
 });
