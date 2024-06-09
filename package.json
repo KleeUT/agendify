@@ -10,7 +10,9 @@
     "prettier:check": "prettier --check  src/**/* types/**/* ",
     "prettier:fix": "prettier --write  src/**/* types/**/* ",
     "eslint:check": "eslint src/**/* types/**/* ",
-    "eslint:fix": "eslint src/**/* types/**/* --fix"
+    "eslint:fix": "eslint src/**/* types/**/* --fix",
+    "prepare": "husky",
+    "postinstall": "husky"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.490.0",
@@ -24,6 +26,7 @@
     "@types/express": "^4.17.21",
     "eslint": "9.x",
     "globals": "^15.4.0",
+    "husky": "^9.0.11",
     "prettier": "^3.3.1",
     "serverless": "^3.38.0",
     "serverless-plugin-typescript": "^2.1.5",
