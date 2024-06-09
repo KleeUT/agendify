@@ -6,7 +6,7 @@
     "build": "tsc",
     "sls:deploy": "sls deploy",
     "test": "echo need to add tests",
-    "lint:check": "prettier:check && eslint:check",
+    "lint:check": "yarn prettier:check && yarn eslint:check",
     "prettier:check": "prettier --check  src/**/* types/**/* ",
     "prettier:fix": "prettier --write  src/**/* types/**/* ",
     "eslint:check": "eslint src/**/* types/**/* ",
