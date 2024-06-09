@@ -1,7 +1,7 @@
 import { SessionDetails, SessionModel } from "../../../types/domain/session";
 import { SessionStore } from "../session/session-store";
 
-import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
   GetCommand,

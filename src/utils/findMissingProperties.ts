@@ -1,9 +1,9 @@
 export function findMissingProperties(
-  reqBody: any,
-  properties: string[]
+  reqBody: { [key: string]: string | undefined },
+  properties: string[],
 ): string[] {
   return properties.reduce(
     (missing, prop) => (reqBody[prop] ? missing : [...missing, prop]),
-    [] as Array<string>
+    [] as Array<string>,
   );
 }

@@ -1,4 +1,4 @@
-import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { SpeakerModel } from "../../../types/domain/speaker";
 import { SpeakerStore } from "../speaker/speaker-store";
 import {

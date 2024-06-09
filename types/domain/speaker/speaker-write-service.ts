@@ -3,6 +3,6 @@ import { SpeakerDetails } from "./speaker";
 export interface SpeakerWriteService {
   addSpeaker(
     conferenceId: string,
-    speakerDetails: SpeakerDetails
+    speakerDetails: SpeakerDetails,
   ): Promise<string>;
 }
