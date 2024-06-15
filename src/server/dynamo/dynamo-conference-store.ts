@@ -1,21 +1,38 @@
 import { ConferenceDetails } from "../../../types/domain/conference";
-import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
+import { QueryCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
 import { Config } from "../../config";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { ConferenceStore } from "../conference/conference-store";
-import { partitionKeyFor } from "./utils";
+import { PARTITION_KEY_PREFIX, partitionKeyFor } from "./utils";
 
-const SORT_KEY_PREFIX = "CONF#";
-
-let dynamoClient: DynamoDBClient;
+type DynamoConferenceReturnType = {
+  suburb: {
+    S: string;
+  };
+  confId: {
+    S: string;
+  };
+  sk: {
+    S: string;
+  };
+  address: {
+    S: string;
+  };
+  building: {
+    S: string;
+  };
+  pk: {
+    S: string;
+  };
+  name: {
+    S: string;
+  };
+};
 export class DynamoConferenceStore implements ConferenceStore {
-  private readonly dynamoDocumentClient: DynamoDBDocumentClient;
-  constructor(private readonly config: Config) {
-    if (!dynamoClient) {
-      dynamoClient = new DynamoDBClient();
-    }
-    this.dynamoDocumentClient = DynamoDBDocumentClient.from(dynamoClient);
-  }
+  constructor(
+    private readonly config: Config,
+    private readonly dynamoDocumentClient: DynamoDBDocumentClient
+  ) {}
 
   async storeConference(model: ConferenceDetails): Promise<void> {
     const putRequest = new PutCommand({
@@ -38,7 +55,7 @@ export class DynamoConferenceStore implements ConferenceStore {
       TableName: this.config.conferenceTable,
       KeyConditionExpression: `pk = :pk AND begins_with(sk, :sk)`,
       ExpressionAttributeValues: {
-        ":sk": { S: SORT_KEY_PREFIX },
+        ":sk": { S: partitionKeyFor(conferenceId) },
         ":pk": { S: partitionKeyFor(conferenceId) },
       },
     });
@@ -46,10 +63,40 @@ export class DynamoConferenceStore implements ConferenceStore {
     const queryResponse = await this.dynamoDocumentClient.send(getRequest);
 
     if (queryResponse.Items?.length === 1) {
-      console.log("response", queryResponse);
-      return queryResponse.Items[0] as unknown as ConferenceDetails; // TODO get the details out correctly
+      return queryResponseToConferenceDetails(
+        queryResponse.Items[0] as DynamoConferenceReturnType
+      );
     }
     console.log(`item not found for ${conferenceId}`);
     throw new Error(`item not found for ${conferenceId}`);
   }
+  async getAllConferences(): Promise<ConferenceDetails[]> {
+    const scanCommand = new ScanCommand({
+      TableName: this.config.conferenceTable,
+      FilterExpression: "begins_with(pk, :pk)",
+      ExpressionAttributeValues: {
+        ":sk": { S: PARTITION_KEY_PREFIX },
+      },
+    });
+
+    const queryResponse = await this.dynamoDocumentClient.send(scanCommand);
+    const conferences = queryResponse.Items?.map((x) =>
+      queryResponseToConferenceDetails(x as DynamoConferenceReturnType)
+    );
+    return conferences || [];
+  }
+}
+
+function queryResponseToConferenceDetails(
+  queryResponse: DynamoConferenceReturnType
+): ConferenceDetails {
+  return {
+    name: queryResponse.name.S,
+    id: queryResponse.confId.S,
+    location: {
+      building: queryResponse.building.S,
+      street: queryResponse.address.S,
+      suburb: queryResponse.suburb.S,
+    },
+  };
 }

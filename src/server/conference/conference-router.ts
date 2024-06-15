@@ -6,12 +6,19 @@ import { findMissingProperties } from "../../utils/findMissingProperties";
 
 const conferenceRouter = Router({});
 
+conferenceRouter.get("/conference", async (req, res) => {
+  const context = initialise(config);
+  const allConferences =
+    await context.conferenceReadService.getAllConferences();
+  res.json({ allConferences });
+});
+
 conferenceRouter.get("/conference/:conferenceId", async (req, res) => {
   const context = initialise(config);
-  const conf = await context.conferenceReadService.getConference(
-    req.params.conferenceId,
+  const conference = await context.conferenceReadService.getConference(
+    req.params.conferenceId
   );
-  res.json(conf);
+  res.json({ conference });
 });
 
 conferenceRouter.post("/conference", async (req, res) => {

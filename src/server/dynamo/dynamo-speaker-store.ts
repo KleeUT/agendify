@@ -57,7 +57,6 @@ export class DynamoSpeakerStore implements SpeakerStore {
     const getResponse = await this.dynamoDocumentClient.send(getCommand);
 
     if (getResponse.Item) {
-      console.log("response", getResponse.Item);
       return getResponse.Item as SpeakerModel; // TODO get the details out correctly
     }
     console.log(`item not found for ${conferenceId} speaker ${speakerId}`);
