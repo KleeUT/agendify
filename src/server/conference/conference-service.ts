@@ -5,12 +5,12 @@ import {
   ConferenceDetails,
 } from "../../../types/domain/conference";
 
-import { DynamoConferenceStore } from "../dynamo";
 import { randomUUID } from "crypto";
+import { ConferenceStore } from "./conference-store";
 export class ConferenceService
   implements ConferenceWriteService, ConferenceReadService
 {
-  constructor(private readonly store: DynamoConferenceStore) {}
+  constructor(private readonly store: ConferenceStore) {}
   async addConference(request: ConferenceCreationRequest): Promise<string> {
     const id = randomUUID();
     await this.store.storeConference({
@@ -23,6 +23,10 @@ export class ConferenceService
       name: request.name,
     });
     return id;
+  }
+  async getAllConferences(): Promise<ConferenceDetails[]> {
+    const conferences = await this.store.getAllConferences();
+    return conferences;
   }
   async getConference(conferenceId: string): Promise<ConferenceDetails> {
     const conferenceDetails = await this.store.getConference(conferenceId);
