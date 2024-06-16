@@ -31,7 +31,7 @@ type DynamoConferenceReturnType = {
 export class DynamoConferenceStore implements ConferenceStore {
   constructor(
     private readonly config: Config,
-    private readonly dynamoDocumentClient: DynamoDBDocumentClient
+    private readonly dynamoDocumentClient: DynamoDBDocumentClient,
   ) {}
 
   async storeConference(model: ConferenceDetails): Promise<void> {
@@ -64,7 +64,7 @@ export class DynamoConferenceStore implements ConferenceStore {
 
     if (queryResponse.Items?.length === 1) {
       return queryResponseToConferenceDetails(
-        queryResponse.Items[0] as DynamoConferenceReturnType
+        queryResponse.Items[0] as DynamoConferenceReturnType,
       );
     }
     console.log(`item not found for ${conferenceId}`);
@@ -81,14 +81,14 @@ export class DynamoConferenceStore implements ConferenceStore {
 
     const queryResponse = await this.dynamoDocumentClient.send(scanCommand);
     const conferences = queryResponse.Items?.map((x) =>
-      queryResponseToConferenceDetails(x as DynamoConferenceReturnType)
+      queryResponseToConferenceDetails(x as DynamoConferenceReturnType),
     );
     return conferences || [];
   }
 }
 
 function queryResponseToConferenceDetails(
-  queryResponse: DynamoConferenceReturnType
+  queryResponse: DynamoConferenceReturnType,
 ): ConferenceDetails {
   return {
     name: queryResponse.name.S,

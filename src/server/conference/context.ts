@@ -13,10 +13,10 @@ export function initialise(config: Config): {
   conferenceReadService: ConferenceReadService;
 } {
   const dynamoDocumentClient = DynamoDBDocumentClient.from(
-    new DynamoDBClient()
+    new DynamoDBClient(),
   );
   const conferenceService = new ConferenceService(
-    new DynamoConferenceStore(config, dynamoDocumentClient)
+    new DynamoConferenceStore(config, dynamoDocumentClient),
   );
   return {
     conferenceWriteService: conferenceService,

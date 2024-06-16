@@ -5,6 +5,7 @@ import { Config } from "../../config";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClientResolvedConfig } from "@aws-sdk/client-dynamodb";
 import { ConferenceDetails } from "../../../types/domain/conference";
+
 const conferenceId1 = "conferenceId1";
 const conferenceId2 = "conferenceId2";
 
@@ -21,9 +22,8 @@ describe("conference", () => {
     const client: DynamoDBDocumentClient = {
       config: {} as unknown as DynamoDBClientResolvedConfig,
       destroy: vi.fn(),
-      middlewareStack: vi.fn() as any,
-      send: mockSendFunction as any,
-    };
+      send: mockSendFunction as DynamoDBDocumentClient["send"],
+    } as unknown as DynamoDBDocumentClient;
 
     const dynamoConferenceStore = new DynamoConferenceStore(fakeConfig, client);
     const conferenceService = new ConferenceService(dynamoConferenceStore);
@@ -108,7 +108,7 @@ describe("conference", () => {
             ":pk": { S: "CONF#conferenceId1" },
           },
         },
-      })
+      }),
     );
     expect(conference).toEqual(expectedConference);
   });
@@ -144,7 +144,7 @@ describe("conference", () => {
             name: "conferenceName",
           },
         },
-      })
+      }),
     );
   });
 
@@ -184,7 +184,7 @@ describe("conference", () => {
             ":sk": { S: "CONF#" },
           },
         },
-      })
+      }),
     );
     expect(conference).toEqual([expectedConference, expectedConference2]);
   });

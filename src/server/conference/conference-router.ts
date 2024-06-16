@@ -16,7 +16,7 @@ conferenceRouter.get("/conference", async (req, res) => {
 conferenceRouter.get("/conference/:conferenceId", async (req, res) => {
   const context = initialise(config);
   const conference = await context.conferenceReadService.getConference(
-    req.params.conferenceId
+    req.params.conferenceId,
   );
   res.json({ conference });
 });

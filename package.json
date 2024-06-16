@@ -5,7 +5,8 @@
   "scripts": {
     "build": "tsc",
     "sls:deploy": "sls deploy",
-    "test": "vitest",
+    "test:run": "vitest run",
+    "test:watch": "vitest watch",
     "lint:check": "yarn prettier:check && yarn eslint:check",
     "prettier:check": "prettier --check  src/**/* types/**/* ",
     "prettier:fix": "prettier --write  src/**/* types/**/* ",
