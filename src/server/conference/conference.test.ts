@@ -2,9 +2,9 @@ import { describe, test, expect, vi, Mock, beforeEach } from "vitest";
 import { ConferenceService } from "./conference-service";
 import { DynamoConferenceStore } from "../dynamo";
 import { Config } from "../../config";
-import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
-import { DynamoDBClientResolvedConfig } from "@aws-sdk/client-dynamodb";
 import { ConferenceDetails } from "../../../types/domain/conference";
+import { fakeConfig } from "../test-utils/config";
+import { aMockDynamoClient } from "../test-utils/dynamo-client";
 
 const conferenceId1 = "conferenceId1";
 const conferenceId2 = "conferenceId2";
@@ -15,15 +15,8 @@ describe("conference", () => {
     conferenceService: ConferenceService;
     mockSendFunction: Mock;
   } {
-    const fakeConfig: Config = {
-      conferenceTable: "faketable",
-    };
     const mockSendFunction = vi.fn();
-    const client: DynamoDBDocumentClient = {
-      config: {} as unknown as DynamoDBClientResolvedConfig,
-      destroy: vi.fn(),
-      send: mockSendFunction as DynamoDBDocumentClient["send"],
-    } as unknown as DynamoDBDocumentClient;
+    const client = aMockDynamoClient(mockSendFunction);
 
     const dynamoConferenceStore = new DynamoConferenceStore(fakeConfig, client);
     const conferenceService = new ConferenceService(dynamoConferenceStore);
@@ -117,6 +110,7 @@ describe("conference", () => {
     vi.mock("crypto", () => ({
       randomUUID: () => "1-2-3-4-5-6",
     }));
+
     // md.mockImplementation(() => "1-2-3-4-5-6");
     const { conferenceService, mockSendFunction, fakeConfig } =
       givenAConferenceService();

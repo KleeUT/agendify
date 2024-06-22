@@ -6,10 +6,10 @@ export interface SpeakerDetails {
 }
 
 export interface SpeakerModel {
-  name: string;
   bio: string;
   socials: Array<string>;
-  picture?: string;
   id: string;
+  picture?: string;
+  name: string;
   conferenceId: string;
 }

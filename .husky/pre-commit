@@ -1,2 +1,4 @@
+yarn prettier:fix
+git add .
 yarn test:run
 yarn lint:check

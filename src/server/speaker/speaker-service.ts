@@ -28,4 +28,7 @@ export class SpeakerService implements SpeakerWriteService, SpeakerReadService {
   }): Promise<SpeakerDetails> {
     return this.speakerStore.getSpeaker(props);
   }
+  getAllSpeakers(conferenceId: string): Promise<Array<SpeakerDetails>> {
+    return this.speakerStore.getAllSpeakers({ conferenceId });
+  }
 }
