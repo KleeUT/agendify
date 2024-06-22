@@ -1,0 +1,11 @@
+meta {
+  name: get all speakers
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/{{conference_id}}/speaker/
+  body: none
+  auth: none
+}
