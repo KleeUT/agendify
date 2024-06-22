@@ -44,7 +44,7 @@ speakerRouter.get("/:conferenceId/speaker/", async (req, res) => {
   const context = initialise(config);
   const speakers =
     await context.speakerReadService.getAllSpeakers(conferenceId);
-  return res.json({ speaker: speakers });
+  return res.json({ speakers: speakers });
 });
 
 export { speakerRouter };
