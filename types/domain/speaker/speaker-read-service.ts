@@ -5,4 +5,5 @@ export interface SpeakerReadService {
     conferenceId: string;
     speakerId: string;
   }): Promise<SpeakerDetails>;
+  getAllSpeakers(conferenceId: string): Promise<Array<SpeakerDetails>>;
 }

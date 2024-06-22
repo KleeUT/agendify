@@ -6,4 +6,5 @@ export interface SpeakerStore {
     conferenceId: string;
     speakerId: string;
   }): Promise<SpeakerModel>;
+  getAllSpeakers(props: { conferenceId: string }): Promise<Array<SpeakerModel>>;
 }
