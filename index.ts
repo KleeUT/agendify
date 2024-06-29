@@ -9,6 +9,7 @@ import express, { NextFunction, Response, Request } from "express";
 import serverless from "serverless-http";
 import { conferenceRouter } from "./src/server/conference/conference-router";
 import { speakerRouter } from "./src/server/speaker/speaker-router";
+import { sessionRouter } from "./src/server/session/session-router";
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 app.use(conferenceRouter);
 app.use(speakerRouter);
+app.use(sessionRouter);
 app.get("/users/:userId", async function (req, res) {
   const params = {
     TableName: USERS_TABLE,

@@ -14,6 +14,6 @@ export function initialise(config: Config) {
     dynamoDocumentClient,
   );
   const speakerContext = initialiseSpeakerContext(config, dynamoDocumentClient);
-  const sessionContext = initialiseSessionContext(config);
+  const sessionContext = initialiseSessionContext(config, dynamoDocumentClient);
   return { ...conferenceContext, ...speakerContext, ...sessionContext };
 }

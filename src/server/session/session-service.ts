@@ -25,4 +25,11 @@ export class SessionService implements SessionWriteService, SessionReadService {
 
     return sessionId;
   }
+  async getAllSessions(params: {
+    conferenceId: string;
+  }): Promise<Array<SessionDetails>> {
+    const sessionDetails: Array<SessionDetails> =
+      await this.store.getAllSessions(params.conferenceId);
+    return sessionDetails;
+  }
 }
