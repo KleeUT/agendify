@@ -3,9 +3,9 @@ import { findMissingProperties } from "../../utils/findMissingProperties";
 import { initialise } from "../context";
 import { config } from "../../config";
 
-const router = Router({});
+const sessionRouter = Router({});
 
-router.post("/:conferenceId/session", async (req, res) => {
+sessionRouter.post("/:conferenceId/session", async (req, res) => {
   const conferenceId = req.params.conferenceId;
   const context = initialise(config);
   const missing = findMissingProperties(req.body, [
@@ -32,7 +32,7 @@ router.post("/:conferenceId/session", async (req, res) => {
   });
 });
 
-router.get("/:conferenceId/session/:sessionId", async (req, res) => {
+sessionRouter.get("/:conferenceId/session/:sessionId", async (req, res) => {
   const { conferenceId, sessionId } = req.params;
   const context = initialise(config);
   const session = await context.sessionReadService.getSession({
@@ -41,3 +41,14 @@ router.get("/:conferenceId/session/:sessionId", async (req, res) => {
   });
   return res.json(session);
 });
+
+sessionRouter.get("/:conferenceId/session", async (req, res) => {
+  const { conferenceId } = req.params;
+  const context = initialise(config);
+  const session = await context.sessionReadService.getAllSessions({
+    conferenceId,
+  });
+  return res.json(session);
+});
+
+export { sessionRouter };

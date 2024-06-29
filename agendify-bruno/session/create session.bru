@@ -6,6 +6,15 @@ meta {
 
 post {
   url: {{base_url}}/{{conference_id}}/session
-  body: none
+  body: json
   auth: none
+}
+
+body:json {
+  {
+    "speakerIds":["06395d03-c738-4048-a729-97932b74cbfd"],
+    "title":"Test Talk #1",
+    "abstract": "Break. Climb. Skate. Ride. The Olympic Qualifier Series is the ultimate stage for Paris. The two-part festival-style series will make its first stop in Shanghai on 16-19 May. The final leap for athletes to secure a spot in an Olympic Games. The results here will help determine which athletes qualify for Paris 2024 in breaking, BMX freestyle, skateboarding, and sport climbing. The Shanghai event will be a celebration of sport and culture, with music, fashion and art combining with the sporting competition to create a festival experience. It's a chance for fans and athletes alike to go watch and try different sports, experience epic moments together and meet a lot new people.",
+    "tags":["testing","thing"]
+  }
 }

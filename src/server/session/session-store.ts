@@ -6,4 +6,5 @@ export interface SessionStore {
     conferenceId: string;
     sessionId: string;
   }): Promise<SessionDetails>;
+  getAllSessions(conferenceId: string): Promise<Array<SessionDetails>>;
 }

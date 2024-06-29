@@ -5,4 +5,7 @@ export interface SessionReadService {
     conferenceId: string;
     sessionId: string;
   }): Promise<SessionDetails>;
+  getAllSessions(params: {
+    conferenceId: string;
+  }): Promise<Array<SessionDetails>>;
 }
