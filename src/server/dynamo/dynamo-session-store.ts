@@ -41,7 +41,6 @@ export class DynamoSessionStore implements SessionStore {
         sessionId: session.sessionId,
       },
     });
-    console.log("Adding session", putCommand);
     await this.dynamoDocumentClient.send(putCommand);
   }
 
@@ -61,7 +60,6 @@ export class DynamoSessionStore implements SessionStore {
     });
 
     const getResponse = await this.dynamoDocumentClient.send(getCommand);
-    console.log(getResponse);
     if (getResponse.Item) {
       return convertDynamoObjectToDetails(
         getResponse.Item as DynamoObject,
@@ -83,7 +81,6 @@ export class DynamoSessionStore implements SessionStore {
         },
       }),
     );
-    console.log("Query Result", queryResult);
     if (!queryResult.Items) {
       console.log(`No results for sessions in ${conferenceId}`);
       return [];
