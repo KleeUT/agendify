@@ -25,7 +25,6 @@ describe("session", () => {
     service.saveSession({
       conferenceId,
       abstract: "abstract",
-      sessionId: "1-2-3-4-5-6",
       speakerIds: [speakerId1],
       tags: ["tag"],
       title: "title",

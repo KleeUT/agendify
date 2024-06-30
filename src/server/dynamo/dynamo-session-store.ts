@@ -96,11 +96,11 @@ function convertQueryResponseItemToDetails(
   conferenceId: string,
 ): SessionDetails {
   return {
-    abstract: item.abstract.S || "unknown",
-    title: item.title.S || "unknown",
-    sessionId: item.sessionId.S || "unknown",
-    tags: item.tags.SS || [],
-    speakerIds: item.speakerIds.SS || [],
+    abstract: item.abstract?.S || "unknown",
+    title: item.title?.S || "unknown",
+    sessionId: item.sessionId?.S || "unknown",
+    tags: item.tags?.SS || [],
+    speakerIds: item.speakerIds?.SS || [],
     conferenceId,
   };
 }

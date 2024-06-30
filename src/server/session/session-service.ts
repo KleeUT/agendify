@@ -17,10 +17,13 @@ export class SessionService implements SessionWriteService, SessionReadService {
   }): Promise<SessionDetails> {
     return this.store.getSession({ sessionId, conferenceId }); //TODO probably should be better but good for testing
   }
-  async saveSession(details: SessionDetails): Promise<string> {
+  async saveSession(
+    details: Omit<SessionDetails, "sessionId">,
+  ): Promise<string> {
     const sessionId = randomUUID();
     await this.store.addSession({
       ...details,
+      sessionId,
     });
 
     return sessionId;

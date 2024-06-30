@@ -60,6 +60,7 @@ app.get("/users/:userId", async function (req, res) {
     res.status(500).json({ error: "Could not retrieve user" });
   }
 });
+app.get("/hello", (_req, res) => res.json({ hello: "world" }));
 
 app.post("/users", async function (req, res) {
   const { userId, name } = req.body;
