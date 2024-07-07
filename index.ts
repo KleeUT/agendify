@@ -1,9 +1,3 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import {
-  DynamoDBDocumentClient,
-  GetCommand,
-  PutCommand,
-} from "@aws-sdk/lib-dynamodb";
 import express, { NextFunction, Response, Request } from "express";
 
 import serverless from "serverless-http";
@@ -13,18 +7,52 @@ import { sessionRouter } from "./src/server/session/session-router";
 
 const app = express();
 
-const USERS_TABLE = process.env.USERS_TABLE;
-const client = new DynamoDBClient();
-const dynamoDbClient = DynamoDBDocumentClient.from(client);
 app.use(express.json());
 
 app.use((req, res, next) => {
-  console.log({ path: req.path, method: req.method });
+  console.log({ msg: "request received", path: req.path, method: req.method });
   next();
 });
 
+app.use(conferenceRouter);
+app.use(speakerRouter);
+app.use(sessionRouter);
+
+app.get("/error", () => {
+  throw new Error("This is an error");
+});
+
+app.get("/error/async", async (req, res, next) => {
+  return await Promise.reject("Promise rejection return await").catch((e) => {
+    throw e;
+  });
+});
+
+app.get("/error/async2", async (req, res) => {
+  // this gets caught in the catch
+  try {
+    await Promise.reject("Promise rejection");
+    // await Promise.reject("Promise Reject");
+  } catch (e) {
+    console.log("e", e);
+    return res.status(500).json({ e }).end();
+  }
+});
+
+app.get("/hello", (_req, res) => res.json({ hello: "world" }));
+
+app.use((req, res, next) => {
+  return res.status(404).json({
+    error: "Not Found",
+  });
+});
+
+// error handler
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
+  console.error("app use error handler", err.stack);
+  if (res.headersSent) {
+    return next(err);
+  }
   return res.status(500).json({
     err: {
       msg: `Something went wrong on ${req.path}`,
@@ -34,63 +62,8 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-app.use(conferenceRouter);
-app.use(speakerRouter);
-app.use(sessionRouter);
-app.get("/users/:userId", async function (req, res) {
-  const params = {
-    TableName: USERS_TABLE,
-    Key: {
-      userId: req.params.userId,
-    },
-  };
-
-  try {
-    const { Item } = await dynamoDbClient.send(new GetCommand(params));
-    if (Item) {
-      const { userId, name } = Item;
-      res.json({ userId, name });
-    } else {
-      res.status(404).json({
-        error: `Could not find user with provided "userId" ${req.params.userId}`,
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Could not retrieve user" });
-  }
-});
-app.get("/hello", (_req, res) => res.json({ hello: "world" }));
-
-app.post("/users", async function (req, res) {
-  const { userId, name } = req.body;
-  if (typeof userId !== "string") {
-    res.status(400).json({ error: '"userId" must be a string' });
-  } else if (typeof name !== "string") {
-    res.status(400).json({ error: '"name" must be a string' });
-  }
-
-  const params = {
-    TableName: USERS_TABLE,
-    Item: {
-      userId: userId,
-      name: name,
-    },
-  };
-
-  try {
-    await dynamoDbClient.send(new PutCommand(params));
-    res.json({ userId, name });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Could not create user" });
-  }
-});
-
-app.use((req, res, next) => {
-  return res.status(404).json({
-    error: "Not Found",
-  });
-});
-
 module.exports.handler = serverless(app);
+
+process.on("unhandledRejection", (reason: string, p: Promise<any>) => {
+  console.error("Unhandled Rejection at:", p, "reason:", reason);
+});
