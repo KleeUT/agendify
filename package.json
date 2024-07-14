@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "dev": "sls offline",
+    "sls": "sls",
     "build": "tsc",
     "sls:deploy": "sls deploy",
     "test:run": "vitest run",

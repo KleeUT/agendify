@@ -1,5 +1,10 @@
 import { ConferenceDetails } from "../../../types/domain/conference";
-import { QueryCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
+import {
+  AttributeValue,
+  BatchWriteItemCommand,
+  QueryCommand,
+  ScanCommand,
+} from "@aws-sdk/client-dynamodb";
 import { Config } from "../../config";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { ConferenceStore } from "../conference/conference-store";
@@ -73,7 +78,7 @@ export class DynamoConferenceStore implements ConferenceStore {
   async getAllConferences(): Promise<ConferenceDetails[]> {
     const scanCommand = new ScanCommand({
       TableName: this.config.conferenceTable,
-      FilterExpression: "begins_with(pk, :pk)",
+      FilterExpression: "begins_with(sk, :sk)",
       ExpressionAttributeValues: {
         ":sk": { S: PARTITION_KEY_PREFIX },
       },
@@ -85,18 +90,54 @@ export class DynamoConferenceStore implements ConferenceStore {
     );
     return conferences || [];
   }
+  async deleteConference(conferenceId: string): Promise<void> {
+    const allConferenceItemsQuery = new QueryCommand({
+      TableName: this.config.conferenceTable,
+      KeyConditionExpression: "pk = :pkval",
+      ExpressionAttributeValues: {
+        ":pkval": { S: partitionKeyFor(conferenceId) },
+      },
+    });
+    const queryResponse = await this.dynamoDocumentClient.send(
+      allConferenceItemsQuery,
+    );
+    await this.bulkDelete(queryResponse.Items);
+  }
+
+  private async bulkDelete(items: Array<Record<string, AttributeValue>> = []) {
+    const getResponse = await this.dynamoDocumentClient.send(
+      new BatchWriteItemCommand({
+        RequestItems: {
+          [this.config.conferenceTable]: items.map((item) => ({
+            DeleteRequest: {
+              Key: {
+                pk: item.pk,
+                sk: item.sk,
+              },
+            },
+          })),
+        },
+      }),
+    );
+    if (getResponse.UnprocessedItems) {
+      console.warn(
+        "There were unprocessed items",
+        getResponse.UnprocessedItems,
+      );
+    }
+  }
 }
 
 function queryResponseToConferenceDetails(
   queryResponse: DynamoConferenceReturnType,
 ): ConferenceDetails {
   return {
-    name: queryResponse.name.S,
-    id: queryResponse.confId.S,
+    name: queryResponse.name?.S || "Missing",
+    id: queryResponse.confId?.S || "Missing",
     location: {
-      building: queryResponse.building.S,
-      street: queryResponse.address.S,
-      suburb: queryResponse.suburb.S,
+      building: queryResponse.building?.S || "Missing",
+      street: queryResponse.address?.S || "Missing",
+      suburb: queryResponse.suburb?.S || "Missing",
     },
   };
 }

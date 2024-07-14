@@ -173,7 +173,7 @@ describe("conference", () => {
       expect.objectContaining({
         input: {
           TableName: fakeConfig.conferenceTable,
-          FilterExpression: `begins_with(pk, :pk)`,
+          FilterExpression: `begins_with(sk, :sk)`,
           ExpressionAttributeValues: {
             ":sk": { S: "CONF#" },
           },
@@ -181,5 +181,16 @@ describe("conference", () => {
       }),
     );
     expect(conference).toEqual([expectedConference, expectedConference2]);
+  });
+
+  describe.skip("Delete", () => {
+    test("Delete a conference", () => {
+      const { conferenceService, mockSendFunction } = givenAConferenceService();
+
+      conferenceService.deleteConference(conferenceId1);
+      expect(mockSendFunction).toHaveBeenCalledWith({
+        fish: "sticks",
+      });
+    });
   });
 });

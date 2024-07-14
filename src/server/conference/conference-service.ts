@@ -32,4 +32,7 @@ export class ConferenceService
     const conferenceDetails = await this.store.getConference(conferenceId);
     return conferenceDetails;
   }
+  async deleteConference(conferenceId: string): Promise<void> {
+    this.store.deleteConference(conferenceId);
+  }
 }
