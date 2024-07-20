@@ -21,6 +21,14 @@ conferenceRouter.get("/conference/:conferenceId", async (req, res) => {
   res.json({ conference });
 });
 
+conferenceRouter.delete("/conference/:conferenceId", async (req, res) => {
+  const context = initialise(config);
+  const conference = await context.conferenceWriteService.deleteConference(
+    req.params.conferenceId,
+  );
+  res.json({ conference });
+});
+
 conferenceRouter.post("/conference", async (req, res) => {
   const body = req.body;
   const context = initialise(config);
