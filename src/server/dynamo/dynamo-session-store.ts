@@ -3,7 +3,7 @@ import { SessionStore } from "../session/session-store";
 
 import type { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
-import { GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { DeleteCommand, GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { Config } from "../../config";
 import { partitionKeyFor } from "./utils";
 import { AttributeValue, QueryCommand } from "@aws-sdk/client-dynamodb";
@@ -88,6 +88,22 @@ export class DynamoSessionStore implements SessionStore {
     return queryResult.Items.map((item) =>
       convertQueryResponseItemToDetails(item, conferenceId),
     );
+  }
+  async deleteSession({
+    conferenceId,
+    sessionId,
+  }: {
+    conferenceId: string;
+    sessionId: string;
+  }): Promise<void> {
+    const deleteCommand = new DeleteCommand({
+      TableName: this.config.conferenceTable,
+      Key: {
+        pk: partitionKeyFor(conferenceId),
+        sk: sortKey(sessionId),
+      },
+    });
+    await this.dynamoDocumentClient.send(deleteCommand);
   }
 }
 

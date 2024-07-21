@@ -35,4 +35,13 @@ export class SessionService implements SessionWriteService, SessionReadService {
       await this.store.getAllSessions(params.conferenceId);
     return sessionDetails;
   }
+  async deleteSession({
+    conferenceId,
+    sessionId,
+  }: {
+    conferenceId: string;
+    sessionId: string;
+  }): Promise<void> {
+    await this.store.deleteSession({ sessionId, conferenceId });
+  }
 }

@@ -41,6 +41,15 @@ sessionRouter.get("/:conferenceId/session/:sessionId", async (req, res) => {
   });
   return res.json(session);
 });
+sessionRouter.delete("/:conferenceId/session/:sessionId", async (req, res) => {
+  const { conferenceId, sessionId } = req.params;
+  const context = initialise(config);
+  await context.sessionWriteService.deleteSession({
+    conferenceId,
+    sessionId,
+  });
+  res.json({ deleted: true });
+});
 
 sessionRouter.get("/:conferenceId/session", async (req, res) => {
   const { conferenceId } = req.params;

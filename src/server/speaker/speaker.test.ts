@@ -132,4 +132,22 @@ describe("speaker service", () => {
       },
     ]);
   });
+  test("Delete session", () => {
+    const mockSend = vi.fn();
+    const dynamoClient = aMockDynamoClient(mockSend);
+    const speakerStore = new DynamoSpeakerStore(fakeConfig, dynamoClient);
+    const service = new SpeakerService(speakerStore);
+    service.deleteSpeaker({ speakerId: speaker1Id, conferenceId });
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: {
+          TableName: fakeConfig.conferenceTable,
+          Key: {
+            pk: `CONF#${conferenceId}`,
+            sk: `SPEAKER#${speaker1Id}`,
+          },
+        },
+      }),
+    );
+  });
 });

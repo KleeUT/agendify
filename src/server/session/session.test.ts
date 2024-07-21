@@ -142,4 +142,23 @@ describe("session", () => {
     ];
     expect(sessions).toEqual(sessionDetails);
   });
+
+  test("Delete session", () => {
+    const mockSend = vi.fn();
+    const dynamoClient = aMockDynamoClient(mockSend);
+    const sessionStore = new DynamoSessionStore(fakeConfig, dynamoClient);
+    const service = new SessionService(sessionStore);
+    service.deleteSession({ sessionId: sessionId1, conferenceId });
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: {
+          TableName: fakeConfig.conferenceTable,
+          Key: {
+            pk: `CONF#${conferenceId}`,
+            sk: `SESSION#${sessionId1}`,
+          },
+        },
+      }),
+    );
+  });
 });

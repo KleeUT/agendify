@@ -2,6 +2,7 @@ import { AttributeValue, QueryCommand } from "@aws-sdk/client-dynamodb";
 import { SpeakerModel } from "../../../types/domain/speaker";
 import { SpeakerStore } from "../speaker/speaker-store";
 import {
+  DeleteCommand,
   DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
@@ -93,6 +94,22 @@ export class DynamoSpeakerStore implements SpeakerStore {
     return dyanamoResponse.Items.map((item) =>
       mapDynamoQueryResponseToSpeakerModel(item, conferenceId),
     );
+  }
+  async deleteSpeaker({
+    conferenceId,
+    speakerId,
+  }: {
+    conferenceId: string;
+    speakerId: string;
+  }): Promise<void> {
+    const deleteCommand = new DeleteCommand({
+      TableName: this.config.conferenceTable,
+      Key: {
+        pk: partitionKeyFor(conferenceId),
+        sk: sortKey(speakerId),
+      },
+    });
+    await this.dynamoDocumentClient.send(deleteCommand);
   }
 }
 

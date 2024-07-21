@@ -31,4 +31,10 @@ export class SpeakerService implements SpeakerWriteService, SpeakerReadService {
   getAllSpeakers(conferenceId: string): Promise<Array<SpeakerDetails>> {
     return this.speakerStore.getAllSpeakers({ conferenceId });
   }
+  async deleteSpeaker(params: {
+    speakerId: string;
+    conferenceId: string;
+  }): Promise<void> {
+    this.speakerStore.deleteSpeaker(params);
+  }
 }
