@@ -7,4 +7,8 @@ export interface SpeakerStore {
     speakerId: string;
   }): Promise<SpeakerModel>;
   getAllSpeakers(props: { conferenceId: string }): Promise<Array<SpeakerModel>>;
+  deleteSpeaker(params: {
+    conferenceId: string;
+    speakerId: string;
+  }): Promise<void>;
 }

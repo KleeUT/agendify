@@ -5,4 +5,8 @@ export interface SpeakerWriteService {
     conferenceId: string,
     speakerDetails: SpeakerDetails,
   ): Promise<string>;
+  deleteSpeaker(params: {
+    speakerId: string;
+    conferenceId: string;
+  }): Promise<void>;
 }

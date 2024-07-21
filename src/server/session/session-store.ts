@@ -7,4 +7,8 @@ export interface SessionStore {
     sessionId: string;
   }): Promise<SessionDetails>;
   getAllSessions(conferenceId: string): Promise<Array<SessionDetails>>;
+  deleteSession(params: {
+    conferenceId: string;
+    sessionId: string;
+  }): Promise<void>;
 }
