@@ -29,11 +29,26 @@ speakerRouter.post("/:conferenceId/speaker", async (req, res, next) => {
         bio,
         picture,
         socials,
-      },
+      }
     );
     return res.json({ speakerId, conferenceId });
   });
 });
+
+speakerRouter.patch(
+  "/:conferenceId/speaker/:speakerId",
+  async (req, res, next) => {
+    handleError(next, async () => {
+      const { conferenceId, speakerId } = req.params;
+      const context = initialise(config);
+      const speaker = await context.speakerReadService.getSpeaker({
+        conferenceId,
+        speakerId,
+      });
+      return res.json(speaker);
+    });
+  }
+);
 
 speakerRouter.get(
   "/:conferenceId/speaker/:speakerId",
@@ -47,7 +62,7 @@ speakerRouter.get(
       });
       return res.json(speaker);
     });
-  },
+  }
 );
 
 speakerRouter.get("/:conferenceId/speaker/", async (req, res, next) => {

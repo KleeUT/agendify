@@ -6,6 +6,7 @@ import {
   DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
+  UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { Config } from "../../config";
 import { partitionKeyFor } from "./utils";
@@ -110,6 +111,22 @@ export class DynamoSpeakerStore implements SpeakerStore {
       },
     });
     await this.dynamoDocumentClient.send(deleteCommand);
+  }
+  async updateSpeaker(
+    model: Partial<SpeakerModel> &
+      Pick<SpeakerModel, "id"> &
+      Pick<SpeakerModel, "conferenceId">,
+  ): Promise<void> {
+    const updateCommand = new UpdateCommand({
+      Key: {
+        pk: partitionKeyFor(model.conferenceId),
+        sk: sortKey(model.id),
+      },
+      TableName: this.config.conferenceTable,
+      AttributeUpdates: {},
+    });
+
+    await this.dynamoDocumentClient.send(updateCommand);
   }
 }
 
