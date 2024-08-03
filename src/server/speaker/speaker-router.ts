@@ -2,6 +2,7 @@ import { Router } from "express";
 import { findMissingProperties } from "../../utils/findMissingProperties";
 import { initialise } from "../context";
 import { config } from "../../config";
+import { handleError } from "../../utils/handleError";
 
 const speakerRouter = Router({});
 
@@ -29,15 +30,20 @@ speakerRouter.post("/:conferenceId/speaker", async (req, res) => {
   return res.json({ speakerId, conferenceId });
 });
 
-speakerRouter.get("/:conferenceId/speaker/:speakerId", async (req, res) => {
-  const { conferenceId, speakerId } = req.params;
-  const context = initialise(config);
-  const speaker = await context.speakerReadService.getSpeaker({
-    conferenceId,
-    speakerId,
-  });
-  return res.json(speaker);
-});
+speakerRouter.get(
+  "/:conferenceId/speaker/:speakerId",
+  async (req, res, next) => {
+    handleError(res, next, async () => {
+      const { conferenceId, speakerId } = req.params;
+      const context = initialise(config);
+      const speaker = await context.speakerReadService.getSpeaker({
+        conferenceId,
+        speakerId,
+      });
+      return res.json(speaker);
+    });
+  },
+);
 
 speakerRouter.get("/:conferenceId/speaker/", async (req, res) => {
   const { conferenceId } = req.params;
