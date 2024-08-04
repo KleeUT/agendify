@@ -1,7 +1,6 @@
-import { NextFunction, type Response } from "express";
+import type { NextFunction } from "express";
 
 export async function handleError(
-  res: Response,
   next: NextFunction,
   thingThatMightThrow: () => Promise<unknown>,
 ) {
