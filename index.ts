@@ -18,30 +18,9 @@ app.use(conferenceRouter);
 app.use(speakerRouter);
 app.use(sessionRouter);
 
-app.get("/error", () => {
-  throw new Error("This is an error");
-});
-
-app.get("/error/async", async (req, res, next) => {
-  return await Promise.reject("Promise rejection return await").catch((e) => {
-    throw e;
-  });
-});
-
-app.get("/error/async2", async (req, res) => {
-  // this gets caught in the catch
-  try {
-    await Promise.reject("Promise rejection");
-    // await Promise.reject("Promise Reject");
-  } catch (e) {
-    console.log("e", e);
-    return res.status(500).json({ e }).end();
-  }
-});
-
 app.get("/hello", (_req, res) => res.json({ hello: "world" }));
 
-app.use((req, res, next) => {
+app.use((req, res) => {
   return res.status(404).json({
     error: "Not Found",
   });
@@ -64,6 +43,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 module.exports.handler = serverless(app);
 
-process.on("unhandledRejection", (reason: string, p: Promise<any>) => {
+process.on("unhandledRejection", (reason: string, p: Promise<unknown>) => {
   console.error("Unhandled Rejection at:", p, "reason:", reason);
 });
