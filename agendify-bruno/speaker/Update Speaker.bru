@@ -1,0 +1,24 @@
+meta {
+  name: Update Speaker
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{base_url}}/{{conference_id}}/speaker/{{speaker_id}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {    
+    "name":"upated name",
+    "bio":"what a shock",
+    "picture":"https://picture.this",
+    "socials":[]
+  }
+}
+
+script:pre-request {
+  bru.setEnvVar("speaker_id","06395d03-c738-4048-a729-97932b74cbfd")
+}
