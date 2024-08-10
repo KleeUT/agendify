@@ -9,6 +9,10 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { Config } from "../../config";
 import { partitionKeyFor } from "./utils";
+import {
+  createUpdateCommandFromModel,
+  ModelKeyLookup,
+} from "./create-update-command-from-model";
 
 type SpeakerDynamoResponse = {
   bio: string;
@@ -18,6 +22,8 @@ type SpeakerDynamoResponse = {
   id: string;
   picture: string;
   name: string;
+  jobTitle?: string;
+  employer?: string;
 };
 
 const SORT_KEY_PREFIX = "SPEAKER#";
@@ -111,18 +117,49 @@ export class DynamoSpeakerStore implements SpeakerStore {
     });
     await this.dynamoDocumentClient.send(deleteCommand);
   }
+  async updateSpeaker(
+    model: Partial<SpeakerModel> &
+      Pick<SpeakerModel, "id"> &
+      Pick<SpeakerModel, "conferenceId">,
+  ): Promise<void> {
+    console.log("writing", model);
+    const updateCommand = createUpdateCommandFromModel({
+      model: model,
+      tableName: this.config.conferenceTable,
+      lookUp,
+      key: {
+        pk: partitionKeyFor(model.conferenceId),
+        sk: sortKey(model.id),
+      },
+    });
+    console.log(updateCommand.input);
+    await this.dynamoDocumentClient.send(updateCommand);
+  }
 }
+
+const lookUp: ModelKeyLookup<SpeakerModel> = {
+  bio: "bio",
+  socials: "socials",
+  id: "id",
+  picture: "picture",
+  jobTitle: "jobTitle",
+  employer: "employer",
+  name: "name",
+  conferenceId: "conferenceId",
+};
+``;
 
 function mapDynamoQueryResponseToSpeakerModel(
   item: Record<string, AttributeValue>,
   conferenceId: string,
 ): SpeakerModel {
+  console.log(item);
   return {
-    bio: item.bio.S || "missing",
-    socials: item.socials.SS || [],
-    id: item.id.S || "missing",
-    picture: item.picture.S || "missing",
-    name: item.name.S || "missing",
+    bio: item.bio?.S || "missing",
+    socials: item.socials?.SS || [],
+    id: item.id?.S || "missing",
+    picture: item.picture?.S || "missing",
+    name: item.name?.S || "missing",
     conferenceId,
   };
 }
