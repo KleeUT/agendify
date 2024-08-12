@@ -3,6 +3,7 @@ import {
   ConferenceWriteService,
   ConferenceCreationRequest,
   ConferenceDetails,
+  ConferenceUpdateRequest,
 } from "../../../types/domain/conference";
 
 import { randomUUID } from "crypto";
@@ -34,5 +35,16 @@ export class ConferenceService
   }
   async deleteConference(conferenceId: string): Promise<void> {
     this.store.deleteConference(conferenceId);
+  }
+  updateConference(updateFields: ConferenceUpdateRequest): Promise<void> {
+    return this.store.updateConference({
+      id: updateFields.conferenceId,
+      location: {
+        building: updateFields.location.building,
+        street: updateFields.location.street,
+        suburb: updateFields.location.suburb,
+      },
+      name: updateFields.name,
+    });
   }
 }
