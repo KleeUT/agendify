@@ -9,7 +9,7 @@ export function createUpdateCommandFromModel<Model>({
   key,
   lookUp: columnNameLookup,
 }: {
-  model: Model;
+  model: Partial<Model>;
   tableName: string;
   key: { pk: string; sk: string };
   lookUp: ModelKeyLookup<Model>;

@@ -1,4 +1,7 @@
-import { ConferenceDetails } from "../../../types/domain/conference";
+import {
+  ConferenceDetails,
+  ConferenceLocation,
+} from "../../../types/domain/conference";
 import {
   AttributeValue,
   BatchWriteItemCommand,
@@ -9,6 +12,7 @@ import { Config } from "../../config";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { ConferenceStore } from "../conference/conference-store";
 import { PARTITION_KEY_PREFIX, partitionKeyFor } from "./utils";
+import { createUpdateCommandFromModel } from "./create-update-command-from-model";
 
 type DynamoConferenceReturnType = {
   suburb: {
@@ -33,23 +37,31 @@ type DynamoConferenceReturnType = {
     S: string;
   };
 };
+type ConferenceModel = {
+  building: string;
+  address: string;
+  suburb: string;
+  confId: string;
+  name: string;
+};
+
 export class DynamoConferenceStore implements ConferenceStore {
   constructor(
     private readonly config: Config,
     private readonly dynamoDocumentClient: DynamoDBDocumentClient,
   ) {}
 
-  async storeConference(model: ConferenceDetails): Promise<void> {
+  async storeConference(conferenceDetails: ConferenceDetails): Promise<void> {
     const putRequest = new PutCommand({
       TableName: this.config.conferenceTable,
       Item: {
-        pk: partitionKeyFor(model.id),
-        sk: partitionKeyFor(model.id),
-        building: model.location.building,
-        address: model.location.street,
-        suburb: model.location.suburb,
-        confId: model.id,
-        name: model.name,
+        pk: partitionKeyFor(conferenceDetails.id),
+        sk: partitionKeyFor(conferenceDetails.id),
+        building: conferenceDetails.location.building,
+        address: conferenceDetails.location.street,
+        suburb: conferenceDetails.location.suburb,
+        confId: conferenceDetails.id,
+        name: conferenceDetails.name,
       },
     });
     await this.dynamoDocumentClient.send(putRequest);
@@ -102,6 +114,35 @@ export class DynamoConferenceStore implements ConferenceStore {
       allConferenceItemsQuery,
     );
     await this.bulkDelete(queryResponse.Items);
+  }
+
+  async updateConference(model: {
+    id: string;
+    location: Partial<ConferenceLocation>;
+    name?: string | undefined;
+  }): Promise<void> {
+    const updateCommand = createUpdateCommandFromModel<ConferenceModel>({
+      model: {
+        confId: model.id,
+        building: model.location.building,
+        address: model.location.street,
+        suburb: model.location.suburb,
+        name: model.name,
+      },
+      tableName: this.config.conferenceTable,
+      key: {
+        sk: partitionKeyFor(model.id),
+        pk: partitionKeyFor(model.id),
+      },
+      lookUp: {
+        confId: "confId",
+        building: "building",
+        address: "address",
+        suburb: "suburb",
+        name: "name",
+      },
+    });
+    await this.dynamoDocumentClient.send(updateCommand);
   }
 
   private async bulkDelete(items: Array<Record<string, AttributeValue>> = []) {

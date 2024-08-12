@@ -36,31 +36,53 @@ conferenceRouter.delete("/conference/:conferenceId", async (req, res, next) => {
   });
 });
 
-conferenceRouter.post("/conference", async (req, res) => {
-  const body = req.body;
-  const context = initialise(config);
-  const missing = findMissingProperties(body, [
-    "name",
-    "building",
-    "street",
-    "suburb",
-  ]);
+conferenceRouter.post("/conference", async (req, res, next) => {
+  handleError(next, async () => {
+    const body = req.body;
+    const context = initialise(config);
+    const missing = findMissingProperties(body, [
+      "name",
+      "building",
+      "street",
+      "suburb",
+    ]);
 
-  if (missing.length > 0) {
-    return res.status(400).json({
-      errMsg: `Missing properties for ${missing.join(", ")}`,
+    if (missing.length > 0) {
+      return res.status(400).json({
+        errMsg: `Missing properties for ${missing.join(", ")}`,
+      });
+    }
+
+    const conferenceId = await context.conferenceWriteService.addConference({
+      name: body.name,
+      location: {
+        building: body.building,
+        street: body.street,
+        suburb: body.suburb,
+      },
     });
-  }
-
-  const conferenceId = await context.conferenceWriteService.addConference({
-    name: body.name,
-    location: {
-      building: body.building,
-      street: body.street,
-      suburb: body.suburb,
-    },
+    return res.json({ conferenceId });
   });
-  return res.json({ conferenceId });
+});
+
+conferenceRouter.patch("/conference/:conferenceId", async (req, res, next) => {
+  handleError(next, async () => {
+    const conferenceId = req.params.conferenceId;
+    const body = req.body;
+    const context = initialise(config);
+
+    const updatedIdConferenceId =
+      await context.conferenceWriteService.updateConference({
+        conferenceId,
+        name: body.name,
+        location: {
+          building: body.building,
+          street: body.street,
+          suburb: body.suburb,
+        },
+      });
+    return res.json({ conferenceId: updatedIdConferenceId });
+  });
 });
 
 export { conferenceRouter };
