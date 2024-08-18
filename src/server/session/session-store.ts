@@ -1,7 +1,7 @@
-import { SessionDetails, SessionModel } from "../../../types/domain/session";
+import { SessionDetails } from "../../../types/domain/session";
 
 export interface SessionStore {
-  addSession(session: SessionModel): Promise<void>;
+  addSession(session: SessionDetails): Promise<void>;
   getSession(identifiers: {
     conferenceId: string;
     sessionId: string;

@@ -1,17 +1,18 @@
-import { SpeakerModel } from "../../../types/domain/speaker";
+import { SpeakerDetails } from "../../../types/domain/speaker";
 
 export interface SpeakerStore {
-  addSpeaker(model: SpeakerModel): Promise<void>;
+  addSpeaker(conferenceId: string, speaker: SpeakerDetails): Promise<void>;
   updateSpeaker(
-    model: Partial<SpeakerModel> &
-      Pick<SpeakerModel, "id"> &
-      Pick<SpeakerModel, "conferenceId">,
+    conferenceId: string,
+    speaker: Partial<SpeakerDetails> & Pick<SpeakerDetails, "speakerId">,
   ): Promise<void>;
   getSpeaker(props: {
     conferenceId: string;
     speakerId: string;
-  }): Promise<SpeakerModel>;
-  getAllSpeakers(props: { conferenceId: string }): Promise<Array<SpeakerModel>>;
+  }): Promise<SpeakerDetails>;
+  getAllSpeakers(props: {
+    conferenceId: string;
+  }): Promise<Array<SpeakerDetails>>;
   deleteSpeaker(params: {
     conferenceId: string;
     speakerId: string;

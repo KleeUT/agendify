@@ -1,5 +1,5 @@
 import { AttributeValue, QueryCommand } from "@aws-sdk/client-dynamodb";
-import { SpeakerModel } from "../../../types/domain/speaker";
+import { SpeakerDetails } from "../../../types/domain/speaker";
 import { SpeakerStore } from "../speaker/speaker-store";
 import {
   DeleteCommand,
@@ -14,18 +14,6 @@ import {
   ModelKeyLookup,
 } from "./create-update-command-from-model";
 
-type SpeakerDynamoResponse = {
-  bio: string;
-  socials: Array<string>;
-  sk: string;
-  pk: string;
-  id: string;
-  picture: string;
-  name: string;
-  jobTitle?: string;
-  employer?: string;
-};
-
 const SORT_KEY_PREFIX = "SPEAKER#";
 
 const sortKey = (speakerId: string) => `${SORT_KEY_PREFIX}${speakerId}`;
@@ -35,17 +23,21 @@ export class DynamoSpeakerStore implements SpeakerStore {
     private readonly config: Config,
     private readonly dynamoDocumentClient: DynamoDBDocumentClient,
   ) {}
-  async addSpeaker(model: SpeakerModel): Promise<void> {
+
+  async addSpeaker(
+    conferenceId: string,
+    speakerDetails: SpeakerDetails,
+  ): Promise<void> {
     const putCommand = new PutCommand({
       TableName: this.config.conferenceTable,
       Item: {
-        pk: partitionKeyFor(model.conferenceId),
-        sk: sortKey(model.id),
-        id: model.id,
-        name: model.name,
-        bio: model.bio,
-        picture: model.picture,
-        socials: model.socials,
+        pk: partitionKeyFor(conferenceId),
+        sk: sortKey(speakerDetails.speakerId),
+        id: speakerDetails.speakerId,
+        name: speakerDetails.name,
+        bio: speakerDetails.bio,
+        picture: speakerDetails.picture,
+        socials: speakerDetails.socials,
       },
     });
 
@@ -58,7 +50,7 @@ export class DynamoSpeakerStore implements SpeakerStore {
   }: {
     conferenceId: string;
     speakerId: string;
-  }): Promise<SpeakerModel> {
+  }): Promise<SpeakerDetails> {
     const getCommand = new GetCommand({
       TableName: this.config.conferenceTable,
       Key: {
@@ -70,10 +62,7 @@ export class DynamoSpeakerStore implements SpeakerStore {
     const getResponse = await this.dynamoDocumentClient.send(getCommand);
     console.log(getResponse);
     if (getResponse.Item) {
-      return mapSpeakerResponseToSpeakerModel(
-        getResponse.Item as SpeakerDynamoResponse,
-        conferenceId,
-      );
+      return mapSpeakerModelToSpeakerDetails(getResponse.Item as SpeakerModel);
     }
     console.log(`item not found for ${conferenceId} speaker ${speakerId}`);
     throw new Error(`item not found for ${conferenceId} speaker ${speakerId}`);
@@ -83,7 +72,7 @@ export class DynamoSpeakerStore implements SpeakerStore {
     conferenceId,
   }: {
     conferenceId: string;
-  }): Promise<SpeakerModel[]> {
+  }): Promise<SpeakerDetails[]> {
     const queryCommand = new QueryCommand({
       TableName: this.config.conferenceTable,
       KeyConditionExpression: `pk = :pk and begins_with(sk, :sk)`,
@@ -92,15 +81,18 @@ export class DynamoSpeakerStore implements SpeakerStore {
         ":sk": { S: SORT_KEY_PREFIX },
       },
     });
-    const dyanamoResponse = await this.dynamoDocumentClient.send(queryCommand);
-    if (!dyanamoResponse.Items) {
+    const dynamoResponse = await this.dynamoDocumentClient.send(queryCommand);
+    if (!dynamoResponse.Items) {
       console.log(`No items found`, { conferenceId });
       return [];
     }
-    return dyanamoResponse.Items.map((item) =>
-      mapDynamoQueryResponseToSpeakerModel(item, conferenceId),
+    return dynamoResponse.Items.map((item) =>
+      mapSpeakerModelToSpeakerDetails(
+        mapDynamoQueryResponseToSpeakerModel(item),
+      ),
     );
   }
+
   async deleteSpeaker({
     conferenceId,
     speakerId,
@@ -117,19 +109,19 @@ export class DynamoSpeakerStore implements SpeakerStore {
     });
     await this.dynamoDocumentClient.send(deleteCommand);
   }
+
   async updateSpeaker(
-    model: Partial<SpeakerModel> &
-      Pick<SpeakerModel, "id"> &
-      Pick<SpeakerModel, "conferenceId">,
+    conferenceId: string,
+    speakerDetails: Partial<SpeakerDetails> & Pick<SpeakerDetails, "speakerId">,
   ): Promise<void> {
-    console.log("writing", model);
+    console.log("writing", speakerDetails);
     const updateCommand = createUpdateCommandFromModel({
-      model: model,
+      model: speakerDetails,
       tableName: this.config.conferenceTable,
       lookUp,
       key: {
-        pk: partitionKeyFor(model.conferenceId),
-        sk: sortKey(model.id),
+        pk: partitionKeyFor(conferenceId),
+        sk: sortKey(speakerDetails.speakerId),
       },
     });
     console.log(updateCommand.input);
@@ -140,40 +132,53 @@ export class DynamoSpeakerStore implements SpeakerStore {
 const lookUp: ModelKeyLookup<SpeakerModel> = {
   bio: "bio",
   socials: "socials",
-  id: "id",
+  speakerId: "speakerId",
   picture: "picture",
   jobTitle: "jobTitle",
   employer: "employer",
   name: "name",
-  conferenceId: "conferenceId",
+  pk: "pk",
+  sk: "sk",
 };
-``;
 
 function mapDynamoQueryResponseToSpeakerModel(
   item: Record<string, AttributeValue>,
-  conferenceId: string,
 ): SpeakerModel {
   console.log(item);
   return {
+    pk: item.pk?.S || "missing",
+    sk: item.sk?.S || "missing",
     bio: item.bio?.S || "missing",
     socials: item.socials?.SS || [],
-    id: item.id?.S || "missing",
+    speakerId: item.id?.S || "missing",
     picture: item.picture?.S || "missing",
     name: item.name?.S || "missing",
-    conferenceId,
+    jobTitle: item.jobTitle?.S || "missing",
+    employer: item.employer?.S || "missing",
   };
 }
 
-function mapSpeakerResponseToSpeakerModel(
-  response: SpeakerDynamoResponse,
-  conferenceId: string,
-): SpeakerModel {
+function mapSpeakerModelToSpeakerDetails(model: SpeakerModel): SpeakerDetails {
   return {
-    bio: response.bio,
-    socials: response.socials,
-    id: response.id,
-    picture: response.picture,
-    name: response.name,
-    conferenceId,
+    bio: model.bio,
+    socials: model.socials,
+    speakerId: model.id || model.speakerId,
+    picture: model.picture,
+    name: model.name,
+    jobTitle: model.jobTitle,
+    employer: model.employer,
   };
 }
+
+type SpeakerModel = {
+  bio: string;
+  socials: Array<string>;
+  sk: string;
+  pk: string;
+  speakerId: string;
+  picture: string;
+  name: string;
+  jobTitle?: string;
+  employer?: string;
+  id?: string; // todo remove
+};

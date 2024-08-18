@@ -1,4 +1,4 @@
-import { SessionDetails, SessionModel } from "../../../types/domain/session";
+import { SessionDetails } from "../../../types/domain/session";
 import { SessionStore } from "../session/session-store";
 
 import type { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
@@ -9,12 +9,12 @@ import { partitionKeyFor } from "./utils";
 import { AttributeValue, QueryCommand } from "@aws-sdk/client-dynamodb";
 
 type DynamoObject = {
-  abstract: string;
-  speakerIds: [string];
-  tags: [string];
-  title: string;
   pk: string;
   sk: string;
+  abstract: string;
+  speakerIds: [string];
+  title: string;
+  tags: [string];
   sessionId: string;
 };
 
@@ -28,7 +28,7 @@ export class DynamoSessionStore implements SessionStore {
     private readonly dynamoDocumentClient: DynamoDBDocumentClient,
   ) {}
 
-  async addSession(session: SessionModel): Promise<void> {
+  async addSession(session: SessionDetails): Promise<void> {
     const putCommand = new PutCommand({
       TableName: this.config.conferenceTable,
       Item: {
