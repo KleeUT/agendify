@@ -4,11 +4,11 @@ import {
 } from "../../../types/domain/conference";
 
 export interface ConferenceStore {
-  storeConference(model: ConferenceDetails): Promise<void>;
+  storeConference(details: ConferenceDetails): Promise<void>;
   getConference(conferenceId: string): Promise<ConferenceDetails>;
   getAllConferences(): Promise<Array<ConferenceDetails>>;
   deleteConference(conferenceId: string): Promise<void>;
-  updateConference(model: {
+  updateConference(details: {
     id: string;
     location: Partial<ConferenceLocation>;
     name?: string;
