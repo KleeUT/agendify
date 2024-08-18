@@ -28,7 +28,7 @@ describe("speaker service", () => {
         socials: ["https://twitter.com"],
         sk: `SPEAKER#${speaker1Id}`,
         pk: `CONF#${conferenceId}`,
-        id: speaker1Id,
+        speakerId: speaker1Id,
         picture: "https://pic",
         name: "Test Speaker",
       },
@@ -56,10 +56,11 @@ describe("speaker service", () => {
     expect(returnedSpeaker).toEqual({
       bio: "bio",
       socials: ["https://twitter.com"],
-      id: speaker1Id,
-      conferenceId,
+      speakerId: speaker1Id,
       picture: "https://pic",
       name: "Test Speaker",
+      employer: undefined,
+      jobTitle: undefined,
     });
   });
 
@@ -123,12 +124,13 @@ describe("speaker service", () => {
     );
     expect(allSpeakers).toEqual([
       {
-        conferenceId,
         bio: "biography",
         socials: ["social1"],
-        id: "speakerId",
+        speakerId: "speakerId",
         name: "name-surname",
         picture: "http://picture",
+        jobTitle: "missing",
+        employer: "missing",
       },
     ]);
   });

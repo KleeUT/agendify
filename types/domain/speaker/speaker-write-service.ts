@@ -3,7 +3,7 @@ import { SpeakerDetails } from "./speaker";
 export interface SpeakerWriteService {
   addSpeaker(
     conferenceId: string,
-    speakerDetails: SpeakerDetails,
+    speakerDetails: Omit<SpeakerDetails, "speakerId">,
   ): Promise<string>;
   updateSpeaker(
     conferenceId: string,

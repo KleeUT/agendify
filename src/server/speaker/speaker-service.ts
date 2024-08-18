@@ -9,16 +9,15 @@ export class SpeakerService implements SpeakerWriteService, SpeakerReadService {
   constructor(private readonly speakerStore: SpeakerStore) {}
   async addSpeaker(
     conferenceId: string,
-    speakerDetails: SpeakerDetails,
+    speakerDetails: Omit<SpeakerDetails, "speakerId">,
   ): Promise<string> {
     const speakerId = randomUUID();
-    await this.speakerStore.addSpeaker({
+    await this.speakerStore.addSpeaker(conferenceId, {
+      speakerId,
       name: speakerDetails.name,
       bio: speakerDetails.bio,
       picture: speakerDetails.picture,
       socials: speakerDetails.socials,
-      id: speakerId,
-      conferenceId,
     });
     return speakerId;
   }
@@ -42,9 +41,8 @@ export class SpeakerService implements SpeakerWriteService, SpeakerReadService {
     speakerId: string,
     speakerDetails: Partial<SpeakerDetails>,
   ): Promise<string> {
-    await this.speakerStore.updateSpeaker({
-      conferenceId,
-      id: speakerId,
+    await this.speakerStore.updateSpeaker(conferenceId, {
+      speakerId,
       bio: speakerDetails.bio,
       name: speakerDetails.name,
       picture: speakerDetails.picture,
