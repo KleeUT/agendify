@@ -9,3 +9,7 @@ get {
   body: none
   auth: none
 }
+
+script:post-response {
+  bru.setEnvVar("conference_id",res.body.allConferences[0].id)
+}
