@@ -1,5 +1,4 @@
 import { AttributeValue, QueryCommand } from "@aws-sdk/client-dynamodb";
-import { SpeakerDetails } from "../../../types/domain/speaker";
 import { SpeakerStore } from "../speaker/speaker-store";
 import {
   DeleteCommand,
@@ -13,10 +12,14 @@ import {
   createUpdateCommandFromModel,
   ModelKeyLookup,
 } from "./create-update-command-from-model";
+import { ConferenceId } from "../conference/conference-id";
+import { SpeakerId } from "../speaker/speaker-id";
+import { SpeakerDetails } from "../speaker/speaker";
 
 const SORT_KEY_PREFIX = "SPEAKER#";
 
-const sortKey = (speakerId: string) => `${SORT_KEY_PREFIX}${speakerId}`;
+const sortKey = (speakerId: SpeakerId) =>
+  `${SORT_KEY_PREFIX}${speakerId.toString()}`;
 
 export class DynamoSpeakerStore implements SpeakerStore {
   constructor(
@@ -25,7 +28,7 @@ export class DynamoSpeakerStore implements SpeakerStore {
   ) {}
 
   async addSpeaker(
-    conferenceId: string,
+    conferenceId: ConferenceId,
     speakerDetails: SpeakerDetails,
   ): Promise<void> {
     const putCommand = new PutCommand({
@@ -33,7 +36,7 @@ export class DynamoSpeakerStore implements SpeakerStore {
       Item: {
         pk: partitionKeyFor(conferenceId),
         sk: sortKey(speakerDetails.speakerId),
-        id: speakerDetails.speakerId,
+        id: speakerDetails.speakerId.toString(),
         name: speakerDetails.name,
         bio: speakerDetails.bio,
         picture: speakerDetails.picture,
@@ -44,13 +47,10 @@ export class DynamoSpeakerStore implements SpeakerStore {
     await this.dynamoDocumentClient.send(putCommand);
   }
 
-  async getSpeaker({
-    conferenceId,
-    speakerId,
-  }: {
-    conferenceId: string;
-    speakerId: string;
-  }): Promise<SpeakerDetails> {
+  async getSpeaker(
+    conferenceId: ConferenceId,
+    speakerId: SpeakerId,
+  ): Promise<SpeakerDetails> {
     const getCommand = new GetCommand({
       TableName: this.config.conferenceTable,
       Key: {
@@ -68,11 +68,7 @@ export class DynamoSpeakerStore implements SpeakerStore {
     throw new Error(`item not found for ${conferenceId} speaker ${speakerId}`);
   }
 
-  async getAllSpeakers({
-    conferenceId,
-  }: {
-    conferenceId: string;
-  }): Promise<SpeakerDetails[]> {
+  async getAllSpeakers(conferenceId: ConferenceId): Promise<SpeakerDetails[]> {
     const queryCommand = new QueryCommand({
       TableName: this.config.conferenceTable,
       KeyConditionExpression: `pk = :pk and begins_with(sk, :sk)`,
@@ -93,13 +89,10 @@ export class DynamoSpeakerStore implements SpeakerStore {
     );
   }
 
-  async deleteSpeaker({
-    conferenceId,
-    speakerId,
-  }: {
-    conferenceId: string;
-    speakerId: string;
-  }): Promise<void> {
+  async deleteSpeaker(
+    conferenceId: ConferenceId,
+    speakerId: SpeakerId,
+  ): Promise<void> {
     const deleteCommand = new DeleteCommand({
       TableName: this.config.conferenceTable,
       Key: {
@@ -111,7 +104,7 @@ export class DynamoSpeakerStore implements SpeakerStore {
   }
 
   async updateSpeaker(
-    conferenceId: string,
+    conferenceId: ConferenceId,
     speakerDetails: Partial<SpeakerDetails> & Pick<SpeakerDetails, "speakerId">,
   ): Promise<void> {
     console.log("writing", speakerDetails);
@@ -150,7 +143,7 @@ function mapDynamoQueryResponseToSpeakerModel(
     sk: item.sk?.S || "missing",
     bio: item.bio?.S || "missing",
     socials: item.socials?.SS || [],
-    speakerId: item.id?.S || "missing",
+    speakerId: SpeakerId.parse(item.id?.S || "missing"),
     picture: item.picture?.S || "missing",
     name: item.name?.S || "missing",
     jobTitle: item.jobTitle?.S || "missing",
@@ -162,7 +155,7 @@ function mapSpeakerModelToSpeakerDetails(model: SpeakerModel): SpeakerDetails {
   return {
     bio: model.bio,
     socials: model.socials,
-    speakerId: model.id || model.speakerId,
+    speakerId: model.id ? SpeakerId.parse(model.id) : model.speakerId,
     picture: model.picture,
     name: model.name,
     jobTitle: model.jobTitle,
@@ -175,7 +168,7 @@ type SpeakerModel = {
   socials: Array<string>;
   sk: string;
   pk: string;
-  speakerId: string;
+  speakerId: SpeakerId;
   picture: string;
   name: string;
   jobTitle?: string;

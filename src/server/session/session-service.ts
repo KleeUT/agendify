@@ -1,26 +1,23 @@
-import { SessionDetails } from "../../../types/domain/session";
-import {
-  SessionReadService,
-  SessionWriteService,
-} from "../../../types/domain/session";
+import { ConferenceId } from "../conference/conference-id";
+import { SessionId } from "./session-id";
 import { SessionStore } from "./session-store";
 import { randomUUID } from "crypto";
+import { SessionWriteService } from "./session-write-service";
+import { SessionReadService } from "./session-read-service";
+import { SessionDetails } from "./session";
 
 export class SessionService implements SessionWriteService, SessionReadService {
   constructor(private readonly store: SessionStore) {}
-  getSession({
-    conferenceId,
-    sessionId,
-  }: {
-    conferenceId: string;
-    sessionId: string;
-  }): Promise<SessionDetails> {
-    return this.store.getSession({ sessionId, conferenceId }); //TODO probably should be better but good for testing
+  getSession(
+    conferenceId: ConferenceId,
+    sessionId: SessionId,
+  ): Promise<SessionDetails> {
+    return this.store.getSession(conferenceId, sessionId);
   }
   async saveSession(
     details: Omit<SessionDetails, "sessionId">,
-  ): Promise<string> {
-    const sessionId = randomUUID();
+  ): Promise<SessionId> {
+    const sessionId = SessionId.parse(randomUUID());
     await this.store.addSession({
       ...details,
       sessionId,
@@ -28,20 +25,17 @@ export class SessionService implements SessionWriteService, SessionReadService {
 
     return sessionId;
   }
-  async getAllSessions(params: {
-    conferenceId: string;
-  }): Promise<Array<SessionDetails>> {
+  async getAllSessions(
+    conferenceId: ConferenceId,
+  ): Promise<Array<SessionDetails>> {
     const sessionDetails: Array<SessionDetails> =
-      await this.store.getAllSessions(params.conferenceId);
+      await this.store.getAllSessions(conferenceId);
     return sessionDetails;
   }
-  async deleteSession({
-    conferenceId,
-    sessionId,
-  }: {
-    conferenceId: string;
-    sessionId: string;
-  }): Promise<void> {
-    await this.store.deleteSession({ sessionId, conferenceId });
+  async deleteSession(
+    conferenceId: ConferenceId,
+    sessionId: SessionId,
+  ): Promise<void> {
+    await this.store.deleteSession(conferenceId, sessionId);
   }
 }

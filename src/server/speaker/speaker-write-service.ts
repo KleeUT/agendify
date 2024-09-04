@@ -2,20 +2,16 @@ import { ConferenceId } from "../conference/conference-id";
 import { SpeakerDetails } from "./speaker";
 import { SpeakerId } from "./speaker-id";
 
-export interface SpeakerStore {
+export interface SpeakerWriteService {
   addSpeaker(
     conferenceId: ConferenceId,
-    speaker: SpeakerDetails,
-  ): Promise<void>;
+    speakerDetails: Omit<SpeakerDetails, "speakerId">,
+  ): Promise<SpeakerId>;
   updateSpeaker(
     conferenceId: ConferenceId,
-    speaker: Partial<SpeakerDetails> & Pick<SpeakerDetails, "speakerId">,
-  ): Promise<void>;
-  getSpeaker(
-    conferenceId: ConferenceId,
     speakerId: SpeakerId,
-  ): Promise<SpeakerDetails>;
-  getAllSpeakers(conferenceId: ConferenceId): Promise<Array<SpeakerDetails>>;
+    speakerDetails: Partial<SpeakerDetails>,
+  ): Promise<SpeakerId>;
   deleteSpeaker(
     conferenceId: ConferenceId,
     speakerId: SpeakerId,

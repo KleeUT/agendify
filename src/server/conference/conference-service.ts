@@ -1,21 +1,23 @@
+import { randomUUID } from "crypto";
+import { ConferenceStore } from "./conference-store";
+import { ConferenceWriteService } from "./conference-write-service";
+import { ConferenceReadService } from "./conference-read-service";
 import {
-  ConferenceReadService,
-  ConferenceWriteService,
   ConferenceCreationRequest,
   ConferenceDetails,
   ConferenceUpdateRequest,
-} from "../../../types/domain/conference";
-
-import { randomUUID } from "crypto";
-import { ConferenceStore } from "./conference-store";
+} from "./conference";
+import { ConferenceId } from "./conference-id";
 export class ConferenceService
   implements ConferenceWriteService, ConferenceReadService
 {
   constructor(private readonly store: ConferenceStore) {}
-  async addConference(request: ConferenceCreationRequest): Promise<string> {
-    const id = randomUUID();
+  async addConference(
+    request: ConferenceCreationRequest,
+  ): Promise<ConferenceId> {
+    const conferenceId = ConferenceId.parse(randomUUID());
     await this.store.storeConference({
-      id,
+      conferenceId,
       location: {
         building: request.location.building,
         street: request.location.street,
@@ -23,22 +25,22 @@ export class ConferenceService
       },
       name: request.name,
     });
-    return id;
+    return conferenceId;
   }
   async getAllConferences(): Promise<ConferenceDetails[]> {
     const conferences = await this.store.getAllConferences();
     return conferences;
   }
-  async getConference(conferenceId: string): Promise<ConferenceDetails> {
+  async getConference(conferenceId: ConferenceId): Promise<ConferenceDetails> {
     const conferenceDetails = await this.store.getConference(conferenceId);
     return conferenceDetails;
   }
-  async deleteConference(conferenceId: string): Promise<void> {
+  async deleteConference(conferenceId: ConferenceId): Promise<void> {
     this.store.deleteConference(conferenceId);
   }
   updateConference(updateFields: ConferenceUpdateRequest): Promise<void> {
     return this.store.updateConference({
-      id: updateFields.conferenceId,
+      conferenceId: updateFields.conferenceId,
       location: {
         building: updateFields.location.building,
         street: updateFields.location.street,

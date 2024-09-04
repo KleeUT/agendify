@@ -1,8 +1,4 @@
 import {
-  ConferenceDetails,
-  ConferenceLocation,
-} from "../../../types/domain/conference";
-import {
   AttributeValue,
   BatchWriteItemCommand,
   QueryCommand,
@@ -13,6 +9,11 @@ import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { ConferenceStore } from "../conference/conference-store";
 import { PARTITION_KEY_PREFIX, partitionKeyFor } from "./utils";
 import { createUpdateCommandFromModel } from "./create-update-command-from-model";
+import {
+  ConferenceDetails,
+  ConferenceLocation,
+} from "../conference/conference";
+import { ConferenceId } from "../conference/conference-id";
 
 type DynamoConferenceReturnType = {
   suburb: {
@@ -55,19 +56,19 @@ export class DynamoConferenceStore implements ConferenceStore {
     const putRequest = new PutCommand({
       TableName: this.config.conferenceTable,
       Item: {
-        pk: partitionKeyFor(conferenceDetails.id),
-        sk: partitionKeyFor(conferenceDetails.id),
+        pk: partitionKeyFor(conferenceDetails.conferenceId),
+        sk: partitionKeyFor(conferenceDetails.conferenceId),
         building: conferenceDetails.location.building,
         address: conferenceDetails.location.street,
         suburb: conferenceDetails.location.suburb,
-        confId: conferenceDetails.id,
+        confId: conferenceDetails.conferenceId.toString(),
         name: conferenceDetails.name,
       },
     });
     await this.dynamoDocumentClient.send(putRequest);
   }
 
-  async getConference(conferenceId: string): Promise<ConferenceDetails> {
+  async getConference(conferenceId: ConferenceId): Promise<ConferenceDetails> {
     const getRequest = new QueryCommand({
       TableName: this.config.conferenceTable,
       KeyConditionExpression: `pk = :pk AND begins_with(sk, :sk)`,
@@ -102,7 +103,7 @@ export class DynamoConferenceStore implements ConferenceStore {
     );
     return conferences || [];
   }
-  async deleteConference(conferenceId: string): Promise<void> {
+  async deleteConference(conferenceId: ConferenceId): Promise<void> {
     const allConferenceItemsQuery = new QueryCommand({
       TableName: this.config.conferenceTable,
       KeyConditionExpression: "pk = :pkval",
@@ -117,13 +118,13 @@ export class DynamoConferenceStore implements ConferenceStore {
   }
 
   async updateConference(model: {
-    id: string;
+    conferenceId: ConferenceId;
     location: Partial<ConferenceLocation>;
     name?: string | undefined;
   }): Promise<void> {
     const updateCommand = createUpdateCommandFromModel<ConferenceModel>({
       model: {
-        confId: model.id,
+        confId: model.conferenceId.toString(),
         building: model.location.building,
         address: model.location.street,
         suburb: model.location.suburb,
@@ -131,8 +132,8 @@ export class DynamoConferenceStore implements ConferenceStore {
       },
       tableName: this.config.conferenceTable,
       key: {
-        sk: partitionKeyFor(model.id),
-        pk: partitionKeyFor(model.id),
+        sk: partitionKeyFor(model.conferenceId),
+        pk: partitionKeyFor(model.conferenceId),
       },
       lookUp: {
         confId: "confId",
@@ -174,7 +175,7 @@ function queryResponseToConferenceDetails(
 ): ConferenceDetails {
   return {
     name: queryResponse.name?.S || "Missing",
-    id: queryResponse.confId?.S || "Missing",
+    conferenceId: ConferenceId.parse(queryResponse.confId?.S || "Missing"),
     location: {
       building: queryResponse.building?.S || "Missing",
       street: queryResponse.address?.S || "Missing",

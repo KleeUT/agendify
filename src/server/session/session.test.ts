@@ -3,12 +3,15 @@ import { aMockDynamoClient } from "../test-utils/dynamo-client";
 import { SessionService } from "./session-service";
 import { DynamoSessionStore } from "../dynamo";
 import { fakeConfig } from "../test-utils/config";
-import { SessionDetails } from "../../../types/domain/session";
+import { SessionDetails } from "./session";
+import { ConferenceId } from "../conference/conference-id";
+import { SpeakerId } from "../speaker/speaker-id";
+import { SessionId } from "./session-id";
 
 describe("session", () => {
-  const conferenceId = "conferenceId1";
-  const speakerId1 = "speaker1";
-  const sessionId1 = "sessionId1";
+  const conferenceId = ConferenceId.parse("conferenceId1");
+  const speakerId1 = SpeakerId.parse("speaker1");
+  const sessionId1 = SessionId.parse("sessionId1");
   beforeEach(() => {
     vi.resetAllMocks();
   });
@@ -36,7 +39,7 @@ describe("session", () => {
           TableName: fakeConfig.conferenceTable,
           Item: {
             abstract: "abstract",
-            speakerIds: [speakerId1],
+            speakerIds: [speakerId1.toString()],
             tags: ["tag"],
             title: "title",
             pk: "CONF#conferenceId1",
@@ -58,19 +61,16 @@ describe("session", () => {
     mockSend.mockResolvedValue({
       Item: {
         abstract: "abstractly",
-        speakerIds: [speakerId1],
+        speakerIds: [speakerId1.toString()],
         tags: ["tag1"],
         title: "session-title",
         pk: "CONF#conferenceId1",
-        sk: `SESSION#${sessionId1}`,
-        sessionId: sessionId1,
+        sk: `SESSION#${sessionId1.toString()}`,
+        sessionId: sessionId1.toString(),
       },
     });
 
-    const session = await service.getSession({
-      conferenceId,
-      sessionId: sessionId1,
-    });
+    const session = await service.getSession(conferenceId, sessionId1);
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
         input: {
@@ -105,17 +105,15 @@ describe("session", () => {
           abstract: { S: "abstractly" },
           pk: { S: "CONF#conferenceId1" },
           sk: { S: `SESSION#${sessionId1}` },
-          sessionId: { S: sessionId1 },
+          sessionId: { S: sessionId1.toString() },
           title: { S: "session-title" },
-          speakerIds: { SS: [speakerId1] },
+          speakerIds: { SS: [speakerId1.toString()] },
           tags: { SS: ["tag1"] },
         },
       ],
     });
 
-    const sessions = await service.getAllSessions({
-      conferenceId,
-    });
+    const sessions = await service.getAllSessions(conferenceId);
 
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -136,10 +134,11 @@ describe("session", () => {
         speakerIds: [speakerId1],
         tags: ["tag1"],
         title: "session-title",
-        conferenceId: "conferenceId1",
+        conferenceId: ConferenceId.parse("conferenceId1"),
         sessionId: sessionId1,
       },
     ];
+
     expect(sessions).toEqual(sessionDetails);
   });
 
@@ -148,7 +147,7 @@ describe("session", () => {
     const dynamoClient = aMockDynamoClient(mockSend);
     const sessionStore = new DynamoSessionStore(fakeConfig, dynamoClient);
     const service = new SessionService(sessionStore);
-    service.deleteSession({ sessionId: sessionId1, conferenceId });
+    service.deleteSession(conferenceId, sessionId1);
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
         input: {

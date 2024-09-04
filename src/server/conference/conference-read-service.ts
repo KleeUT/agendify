@@ -1,6 +1,7 @@
 import { ConferenceDetails } from "./conference";
+import { ConferenceId } from "./conference-id";
 
 export interface ConferenceReadService {
-  getConference(conferenceId: string): Promise<ConferenceDetails>;
+  getConference(conferenceId: ConferenceId): Promise<ConferenceDetails>;
   getAllConferences(): Promise<Array<ConferenceDetails>>;
 }

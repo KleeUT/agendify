@@ -4,9 +4,11 @@ import { DynamoSpeakerStore } from "../dynamo";
 import { fakeConfig } from "../test-utils/config";
 import { aMockDynamoClient } from "../test-utils/dynamo-client";
 import { partitionKeyFor } from "../dynamo/utils";
+import { ConferenceId } from "../conference/conference-id";
+import { SpeakerId } from "./speaker-id";
 
-const conferenceId = "conferenceId1";
-const speaker1Id = "speaker1";
+const conferenceId = ConferenceId.parse("conferenceId1");
+const speaker1Id = SpeakerId.parse("speaker1");
 
 describe("speaker service", () => {
   beforeEach(() => {
@@ -37,10 +39,7 @@ describe("speaker service", () => {
   test("should load speaker for conference", async () => {
     const { service, mockSend } = setUpSpeakerService();
     returnASingleSpeaker(mockSend);
-    const returnedSpeaker = await service.getSpeaker({
-      conferenceId,
-      speakerId: speaker1Id,
-    });
+    const returnedSpeaker = await service.getSpeaker(conferenceId, speaker1Id);
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
         input: {
@@ -126,7 +125,7 @@ describe("speaker service", () => {
       {
         bio: "biography",
         socials: ["social1"],
-        speakerId: "speakerId",
+        speakerId: SpeakerId.parse("speakerId"),
         name: "name-surname",
         picture: "http://picture",
         jobTitle: "missing",
@@ -139,7 +138,7 @@ describe("speaker service", () => {
     const dynamoClient = aMockDynamoClient(mockSend);
     const speakerStore = new DynamoSpeakerStore(fakeConfig, dynamoClient);
     const service = new SpeakerService(speakerStore);
-    service.deleteSpeaker({ speakerId: speaker1Id, conferenceId });
+    service.deleteSpeaker(conferenceId, speaker1Id);
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
         input: {

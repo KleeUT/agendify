@@ -3,7 +3,9 @@ import { findMissingProperties } from "../../utils/findMissingProperties";
 import { initialise } from "../context";
 import { config } from "../../config";
 import { handleError } from "../../utils/handleError";
-import { SpeakerDetails } from "../../../types/domain/speaker";
+import { SpeakerDetails } from "./speaker";
+import { ConferenceId } from "../conference/conference-id";
+import { SpeakerId } from "./speaker-id";
 
 const speakerRouter = Router({});
 
@@ -24,7 +26,7 @@ speakerRouter.post("/:conferenceId/speaker", async (req, res, next) => {
     }
     const { name, bio, picture, socials } = req.body;
     const speakerId = await context.speakerWriteService.addSpeaker(
-      conferenceId,
+      ConferenceId.parse(conferenceId),
       {
         name,
         bio,
@@ -45,8 +47,8 @@ speakerRouter.patch(
       const { name, bio, picture, socials } =
         req.body as Partial<SpeakerDetails>;
       const speaker = await context.speakerWriteService.updateSpeaker(
-        conferenceId,
-        speakerId,
+        ConferenceId.parse(conferenceId),
+        SpeakerId.parse(speakerId),
         {
           name,
           bio,
@@ -65,10 +67,10 @@ speakerRouter.get(
     handleError(next, async () => {
       const { conferenceId, speakerId } = req.params;
       const context = initialise(config);
-      const speaker = await context.speakerReadService.getSpeaker({
-        conferenceId,
-        speakerId,
-      });
+      const speaker = await context.speakerReadService.getSpeaker(
+        ConferenceId.parse(conferenceId),
+        SpeakerId.parse(speakerId),
+      );
       return res.json(speaker);
     });
   },
@@ -80,10 +82,10 @@ speakerRouter.delete(
     handleError(next, async () => {
       const { conferenceId, speakerId } = req.params;
       const context = initialise(config);
-      const speaker = await context.speakerWriteService.deleteSpeaker({
-        conferenceId,
-        speakerId,
-      });
+      const speaker = await context.speakerWriteService.deleteSpeaker(
+        ConferenceId.parse(conferenceId),
+        SpeakerId.parse(speakerId),
+      );
       return res.json(speaker);
     });
   },
@@ -93,8 +95,9 @@ speakerRouter.get("/:conferenceId/speaker/", async (req, res, next) => {
   handleError(next, async () => {
     const { conferenceId } = req.params;
     const context = initialise(config);
-    const speakers =
-      await context.speakerReadService.getAllSpeakers(conferenceId);
+    const speakers = await context.speakerReadService.getAllSpeakers(
+      ConferenceId.parse(conferenceId),
+    );
     return res.json({ speakers: speakers });
   });
 });

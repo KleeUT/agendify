@@ -2,12 +2,13 @@ import { describe, test, expect, vi, Mock, beforeEach } from "vitest";
 import { ConferenceService } from "./conference-service";
 import { DynamoConferenceStore } from "../dynamo";
 import { Config } from "../../config";
-import { ConferenceDetails } from "../../../types/domain/conference";
 import { fakeConfig } from "../test-utils/config";
 import { aMockDynamoClient } from "../test-utils/dynamo-client";
+import { ConferenceDetails } from "./conference";
+import { ConferenceId } from "./conference-id";
 
-const conferenceId1 = "conferenceId1";
-const conferenceId2 = "conferenceId2";
+const conferenceId1 = ConferenceId.parse("conferenceId1");
+const conferenceId2 = ConferenceId.parse("conferenceId2");
 
 describe("conference", () => {
   function givenAConferenceService(): {
@@ -23,13 +24,13 @@ describe("conference", () => {
     return { conferenceService, mockSendFunction, fakeConfig };
   }
 
-  function dynamoConference(conferenceId: string) {
+  function dynamoConference(conferenceId: ConferenceId) {
     return {
       suburb: {
         S: "suburb",
       },
       confId: {
-        S: conferenceId,
+        S: conferenceId.toString(),
       },
       sk: {
         S: `CONF#${conferenceId}`,
@@ -60,7 +61,7 @@ describe("conference", () => {
         S: "suburb",
       },
       confId: {
-        S: conferenceId1,
+        S: conferenceId1.toString(),
       },
       sk: {
         S: "CONF#conferenceId1",
@@ -80,7 +81,7 @@ describe("conference", () => {
     };
     const expectedConference: ConferenceDetails = {
       name: "name",
-      id: conferenceId1,
+      conferenceId: conferenceId1,
       location: {
         building: "building",
         street: "street",
@@ -149,7 +150,7 @@ describe("conference", () => {
     const returnedConference2 = dynamoConference(conferenceId2);
     const expectedConference: ConferenceDetails = {
       name: "name",
-      id: conferenceId1,
+      conferenceId: conferenceId1,
       location: {
         building: "building",
         street: "street",
@@ -158,7 +159,7 @@ describe("conference", () => {
     };
     const expectedConference2: ConferenceDetails = {
       name: "name",
-      id: conferenceId2,
+      conferenceId: conferenceId2,
       location: {
         building: "building",
         street: "street",

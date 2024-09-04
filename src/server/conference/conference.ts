@@ -1,3 +1,5 @@
+import { ConferenceId } from "./conference-id";
+
 export interface ConferenceLocation {
   building: string;
   street: string;
@@ -8,13 +10,13 @@ export interface ConferenceCreationRequest {
   location: ConferenceLocation;
 }
 export interface ConferenceUpdateRequest {
-  conferenceId: string;
+  conferenceId: ConferenceId;
   name?: string;
   location: Partial<ConferenceLocation>;
 }
 
 export interface ConferenceDetails {
   name: string;
-  id: string;
+  conferenceId: ConferenceId;
   location: ConferenceLocation;
 }

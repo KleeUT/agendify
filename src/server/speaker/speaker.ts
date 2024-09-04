@@ -1,5 +1,7 @@
+import { SpeakerId } from "./speaker-id";
+
 export interface SpeakerDetails {
-  speakerId: string;
+  speakerId: SpeakerId;
   name: string;
   bio: string;
   picture?: string;
