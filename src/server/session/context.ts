@@ -1,11 +1,10 @@
 import { Config } from "../../config";
-import {
-  SessionReadService,
-  SessionWriteService,
-} from "../../../types/domain/session";
+
 import { SessionService } from "./session-service";
 import { DynamoSessionStore } from "../dynamo";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { SessionWriteService } from "./session-write-service";
+import { SessionReadService } from "./session-read-service";
 
 export function initialiseSessionContext(
   config: Config,

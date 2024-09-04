@@ -2,9 +2,10 @@ import {
   ConferenceCreationRequest,
   ConferenceUpdateRequest,
 } from "./conference";
+import { ConferenceId } from "./conference-id";
 
 export interface ConferenceWriteService {
-  addConference: (model: ConferenceCreationRequest) => Promise<string>;
+  addConference: (model: ConferenceCreationRequest) => Promise<ConferenceId>;
   updateConference: (updateFields: ConferenceUpdateRequest) => Promise<void>;
-  deleteConference: (conferenceId: string) => Promise<void>;
+  deleteConference: (conferenceId: ConferenceId) => Promise<void>;
 }

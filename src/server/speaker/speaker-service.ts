@@ -1,17 +1,17 @@
-import {
-  SpeakerWriteService,
-  SpeakerReadService,
-} from "../../../types/domain/speaker";
-import { SpeakerDetails } from "../../../types/domain/speaker";
 import { randomUUID } from "crypto";
 import { SpeakerStore } from "./speaker-store";
+import { SpeakerWriteService } from "./speaker-write-service";
+import { SpeakerReadService } from "./speaker-read-service";
+import { SpeakerDetails } from "./speaker";
+import { ConferenceId } from "../conference/conference-id";
+import { SpeakerId } from "./speaker-id";
 export class SpeakerService implements SpeakerWriteService, SpeakerReadService {
   constructor(private readonly speakerStore: SpeakerStore) {}
   async addSpeaker(
-    conferenceId: string,
+    conferenceId: ConferenceId,
     speakerDetails: Omit<SpeakerDetails, "speakerId">,
-  ): Promise<string> {
-    const speakerId = randomUUID();
+  ): Promise<SpeakerId> {
+    const speakerId = SpeakerId.parse(randomUUID());
     await this.speakerStore.addSpeaker(conferenceId, {
       speakerId,
       name: speakerDetails.name,
@@ -21,26 +21,26 @@ export class SpeakerService implements SpeakerWriteService, SpeakerReadService {
     });
     return speakerId;
   }
-  getSpeaker(props: {
-    conferenceId: string;
-    speakerId: string;
-  }): Promise<SpeakerDetails> {
-    return this.speakerStore.getSpeaker(props);
+  getSpeaker(
+    conferenceId: ConferenceId,
+    speakerId: SpeakerId,
+  ): Promise<SpeakerDetails> {
+    return this.speakerStore.getSpeaker(conferenceId, speakerId);
   }
-  getAllSpeakers(conferenceId: string): Promise<Array<SpeakerDetails>> {
-    return this.speakerStore.getAllSpeakers({ conferenceId });
+  getAllSpeakers(conferenceId: ConferenceId): Promise<Array<SpeakerDetails>> {
+    return this.speakerStore.getAllSpeakers(conferenceId);
   }
-  async deleteSpeaker(params: {
-    speakerId: string;
-    conferenceId: string;
-  }): Promise<void> {
-    this.speakerStore.deleteSpeaker(params);
+  async deleteSpeaker(
+    conferenceId: ConferenceId,
+    speakerId: SpeakerId,
+  ): Promise<void> {
+    this.speakerStore.deleteSpeaker(conferenceId, speakerId);
   }
   async updateSpeaker(
-    conferenceId: string,
-    speakerId: string,
+    conferenceId: ConferenceId,
+    speakerId: SpeakerId,
     speakerDetails: Partial<SpeakerDetails>,
-  ): Promise<string> {
+  ): Promise<SpeakerId> {
     await this.speakerStore.updateSpeaker(conferenceId, {
       speakerId,
       bio: speakerDetails.bio,

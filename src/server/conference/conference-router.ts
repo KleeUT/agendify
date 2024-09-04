@@ -4,6 +4,7 @@ import { Router } from "express";
 import { config } from "../../config";
 import { findMissingProperties } from "../../utils/findMissingProperties";
 import { handleError } from "../../utils/handleError";
+import { ConferenceId } from "./conference-id";
 
 const conferenceRouter = Router({});
 
@@ -20,7 +21,7 @@ conferenceRouter.get("/conference/:conferenceId", async (req, res, next) => {
   await handleError(next, async () => {
     const context = initialise(config);
     const conference = await context.conferenceReadService.getConference(
-      req.params.conferenceId,
+      ConferenceId.parse(req.params.conferenceId),
     );
     res.json({ conference });
   });
@@ -30,7 +31,7 @@ conferenceRouter.delete("/conference/:conferenceId", async (req, res, next) => {
   await handleError(next, async () => {
     const context = initialise(config);
     const conference = await context.conferenceWriteService.deleteConference(
-      req.params.conferenceId,
+      ConferenceId.parse(req.params.conferenceId),
     );
     res.json({ conference });
   });
@@ -67,7 +68,7 @@ conferenceRouter.post("/conference", async (req, res, next) => {
 
 conferenceRouter.patch("/conference/:conferenceId", async (req, res, next) => {
   handleError(next, async () => {
-    const conferenceId = req.params.conferenceId;
+    const conferenceId = ConferenceId.parse(req.params.conferenceId);
     const body = req.body;
     const context = initialise(config);
 

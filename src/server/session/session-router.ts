@@ -3,6 +3,8 @@ import { findMissingProperties } from "../../utils/findMissingProperties";
 import { initialise } from "../context";
 import { config } from "../../config";
 import { handleError } from "../../utils/handleError";
+import { ConferenceId } from "../conference/conference-id";
+import { SessionId } from "./session-id";
 
 const sessionRouter = Router({});
 
@@ -23,7 +25,7 @@ sessionRouter.post("/:conferenceId/session", async (req, res, next) => {
     }
     const { speakerIds, title, abstract, tags } = req.body;
     const sessionId = await context.sessionWriteService.saveSession({
-      conferenceId,
+      conferenceId: ConferenceId.parse(conferenceId),
       speakerIds,
       title,
       abstract,
@@ -41,10 +43,10 @@ sessionRouter.get(
     handleError(next, async () => {
       const { conferenceId, sessionId } = req.params;
       const context = initialise(config);
-      const session = await context.sessionReadService.getSession({
-        conferenceId,
-        sessionId,
-      });
+      const session = await context.sessionReadService.getSession(
+        ConferenceId.parse(conferenceId),
+        SessionId.parse(sessionId),
+      );
       return res.json(session);
     });
   },
@@ -55,10 +57,10 @@ sessionRouter.delete(
     handleError(next, async () => {
       const { conferenceId, sessionId } = req.params;
       const context = initialise(config);
-      await context.sessionWriteService.deleteSession({
-        conferenceId,
-        sessionId,
-      });
+      await context.sessionWriteService.deleteSession(
+        ConferenceId.parse(conferenceId),
+        SessionId.parse(sessionId),
+      );
       res.json({ deleted: true });
     });
   },
@@ -68,9 +70,9 @@ sessionRouter.get("/:conferenceId/session", async (req, res, next) => {
   handleError(next, async () => {
     const { conferenceId } = req.params;
     const context = initialise(config);
-    const session = await context.sessionReadService.getAllSessions({
-      conferenceId,
-    });
+    const session = await context.sessionReadService.getAllSessions(
+      ConferenceId.parse(conferenceId),
+    );
     return res.json(session);
   });
 });

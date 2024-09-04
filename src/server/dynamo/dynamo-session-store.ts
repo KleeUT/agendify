@@ -1,4 +1,3 @@
-import { SessionDetails } from "../../../types/domain/session";
 import { SessionStore } from "../session/session-store";
 
 import type { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
@@ -7,6 +6,10 @@ import { DeleteCommand, GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { Config } from "../../config";
 import { partitionKeyFor } from "./utils";
 import { AttributeValue, QueryCommand } from "@aws-sdk/client-dynamodb";
+import { ConferenceId } from "../conference/conference-id";
+import { SessionId } from "../session/session-id";
+import { SessionDetails } from "../session/session";
+import { SpeakerId } from "../speaker/speaker-id";
 
 type DynamoObject = {
   pk: string;
@@ -20,7 +23,8 @@ type DynamoObject = {
 
 const SORT_KEY_PREFIX = "SESSION#";
 
-const sortKey = (sessionId: string) => `${SORT_KEY_PREFIX}${sessionId}`;
+const sortKey = (sessionId: SessionId) =>
+  `${SORT_KEY_PREFIX}${sessionId.toString()}`;
 
 export class DynamoSessionStore implements SessionStore {
   constructor(
@@ -34,23 +38,20 @@ export class DynamoSessionStore implements SessionStore {
       Item: {
         pk: partitionKeyFor(session.conferenceId),
         sk: sortKey(session.sessionId),
-        speakerIds: session.speakerIds,
+        speakerIds: session.speakerIds.map((x) => x.toString()),
         title: session.title,
         abstract: session.abstract,
         tags: session.tags,
-        sessionId: session.sessionId,
+        sessionId: session.sessionId.toString(),
       },
     });
     await this.dynamoDocumentClient.send(putCommand);
   }
 
-  async getSession({
-    conferenceId,
-    sessionId,
-  }: {
-    conferenceId: string;
-    sessionId: string;
-  }): Promise<SessionDetails> {
+  async getSession(
+    conferenceId: ConferenceId,
+    sessionId: SessionId,
+  ): Promise<SessionDetails> {
     const getCommand = new GetCommand({
       TableName: this.config.conferenceTable,
       Key: {
@@ -70,7 +71,7 @@ export class DynamoSessionStore implements SessionStore {
     throw new Error(`item not found for ${conferenceId} speaker ${sessionId}`);
   }
 
-  async getAllSessions(conferenceId: string): Promise<SessionDetails[]> {
+  async getAllSessions(conferenceId: ConferenceId): Promise<SessionDetails[]> {
     const queryResult = await this.dynamoDocumentClient.send(
       new QueryCommand({
         TableName: this.config.conferenceTable,
@@ -89,13 +90,10 @@ export class DynamoSessionStore implements SessionStore {
       convertQueryResponseItemToDetails(item, conferenceId),
     );
   }
-  async deleteSession({
-    conferenceId,
-    sessionId,
-  }: {
-    conferenceId: string;
-    sessionId: string;
-  }): Promise<void> {
+  async deleteSession(
+    conferenceId: ConferenceId,
+    sessionId: SessionId,
+  ): Promise<void> {
     const deleteCommand = new DeleteCommand({
       TableName: this.config.conferenceTable,
       Key: {
@@ -109,27 +107,27 @@ export class DynamoSessionStore implements SessionStore {
 
 function convertQueryResponseItemToDetails(
   item: Record<string, AttributeValue>,
-  conferenceId: string,
+  conferenceId: ConferenceId,
 ): SessionDetails {
   return {
     abstract: item.abstract?.S || "unknown",
     title: item.title?.S || "unknown",
-    sessionId: item.sessionId?.S || "unknown",
+    sessionId: SessionId.parse(item.sessionId?.S || "unknown"),
     tags: item.tags?.SS || [],
-    speakerIds: item.speakerIds?.SS || [],
+    speakerIds: (item.speakerIds?.SS || []).map(SpeakerId.parse),
     conferenceId,
   };
 }
 
 function convertDynamoObjectToDetails(
   obj: DynamoObject,
-  conferenceId: string,
+  conferenceId: ConferenceId,
 ): SessionDetails {
   return {
     conferenceId,
-    sessionId: obj.sessionId,
+    sessionId: SessionId.parse(obj.sessionId),
     abstract: obj.abstract,
-    speakerIds: obj.speakerIds,
+    speakerIds: obj.speakerIds.map(SpeakerId.parse),
     tags: obj.tags,
     title: obj.title,
   };
