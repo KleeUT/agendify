@@ -1,6 +1,6 @@
 import { describe, test, expect, vi, Mock, beforeEach } from "vitest";
 import { ConferenceService } from "./conference-service";
-import { DynamoConferenceStore } from "../dynamo";
+import { DynamoConferenceStore } from "./dynamo-conference-store";
 import { Config } from "../../config";
 import { fakeConfig } from "../test-utils/config";
 import { aMockDynamoClient } from "../test-utils/dynamo-client";

@@ -1,4 +1,4 @@
-import { ConferenceId } from "../conference/conference-id";
+import { ConferenceId } from "../../server/conference/conference-id";
 
 export const PARTITION_KEY_PREFIX = "CONF#";
 

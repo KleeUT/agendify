@@ -4,7 +4,7 @@ import type { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 import { DeleteCommand, GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { Config } from "../../config";
-import { partitionKeyFor } from "./utils";
+import { partitionKeyFor } from "../../utils/dynamo";
 import { AttributeValue, QueryCommand } from "@aws-sdk/client-dynamodb";
 import { ConferenceId } from "../conference/conference-id";
 import { SessionId } from "../session/session-id";
