@@ -7,6 +7,7 @@
     "sls": "sls",
     "build": "tsc",
     "sls:deploy": "sls deploy",
+    "test": "vitest run",
     "test:run": "vitest run",
     "test:watch": "vitest watch",
     "lint:check": "yarn prettier:check && yarn eslint:check",

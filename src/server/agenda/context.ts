@@ -3,7 +3,7 @@ import { Config } from "../../config";
 import { AgendaService } from "./agenda-service";
 import { AgendaReadService } from "./agenda-read-service";
 import { AgendaWriteService } from "./agenda-write-service";
-import { InMemoryFakeAgendaStore } from "../dynamo/dynamo-agenda-store";
+import { InMemoryFakeAgendaStore } from "./dynamo-agenda-store";
 
 export function initialiseAgendaContext(
   config: Config,

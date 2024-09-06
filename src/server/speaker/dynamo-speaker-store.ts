@@ -7,11 +7,11 @@ import {
   PutCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { Config } from "../../config";
-import { partitionKeyFor } from "./utils";
 import {
   createUpdateCommandFromModel,
   ModelKeyLookup,
-} from "./create-update-command-from-model";
+  partitionKeyFor,
+} from "../../utils/dynamo";
 import { ConferenceId } from "../conference/conference-id";
 import { SpeakerId } from "../speaker/speaker-id";
 import { SpeakerDetails } from "../speaker/speaker";

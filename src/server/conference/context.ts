@@ -1,6 +1,6 @@
 import { Config } from "../../config";
 import { ConferenceService } from "./conference-service";
-import { DynamoConferenceStore } from "../dynamo/dynamo-conference-store";
+import { DynamoConferenceStore } from "./dynamo-conference-store";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { ConferenceWriteService } from "./conference-write-service";
 import { ConferenceReadService } from "./conference-read-service";

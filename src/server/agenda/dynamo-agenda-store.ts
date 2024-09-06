@@ -1,7 +1,7 @@
 import { Config } from "../../config";
-import { AgendaStore } from "../agenda/agenda-store";
+import { AgendaStore } from "./agenda-store";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
-import { Agenda } from "../agenda/types";
+import { Agenda } from "./types";
 
 export class InMemoryFakeAgendaStore implements AgendaStore {
   private agendas: Map<string, Agenda>;

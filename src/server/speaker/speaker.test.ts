@@ -1,9 +1,9 @@
 import { describe, test, expect, vi, Mock, beforeEach } from "vitest";
 import { SpeakerService } from "./speaker-service";
-import { DynamoSpeakerStore } from "../dynamo";
+import { DynamoSpeakerStore } from "./dynamo-speaker-store";
 import { fakeConfig } from "../test-utils/config";
 import { aMockDynamoClient } from "../test-utils/dynamo-client";
-import { partitionKeyFor } from "../dynamo/utils";
+import { partitionKeyFor } from "../../utils/dynamo/key-utils";
 import { ConferenceId } from "../conference/conference-id";
 import { SpeakerId } from "./speaker-id";
 

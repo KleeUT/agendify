@@ -7,8 +7,11 @@ import {
 import { Config } from "../../config";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { ConferenceStore } from "../conference/conference-store";
-import { PARTITION_KEY_PREFIX, partitionKeyFor } from "./utils";
-import { createUpdateCommandFromModel } from "./create-update-command-from-model";
+import {
+  PARTITION_KEY_PREFIX,
+  partitionKeyFor,
+  createUpdateCommandFromModel,
+} from "../../utils/dynamo";
 import {
   ConferenceDetails,
   ConferenceLocation,

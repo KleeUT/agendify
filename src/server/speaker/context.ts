@@ -1,6 +1,6 @@
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { Config } from "../../config";
-import { DynamoSpeakerStore } from "../dynamo/dynamo-speaker-store";
+import { DynamoSpeakerStore } from "./dynamo-speaker-store";
 import { SpeakerService } from "./speaker-service";
 import { SpeakerWriteService } from "./speaker-write-service";
 import { SpeakerReadService } from "./speaker-read-service";

@@ -1,7 +1,7 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
 import { aMockDynamoClient } from "../test-utils/dynamo-client";
 import { SessionService } from "./session-service";
-import { DynamoSessionStore } from "../dynamo";
+import { DynamoSessionStore } from "./dynamo-session-store";
 import { fakeConfig } from "../test-utils/config";
 import { SessionDetails } from "./session";
 import { ConferenceId } from "../conference/conference-id";
