@@ -1,6 +1,8 @@
+import { Maybe } from "../../utils/dynamo/maybe";
+import { ConferenceId } from "../conference/conference-id";
 import { Agenda } from "./types";
 
 export interface AgendaStore {
-  getAgenda(conferenceId: string): Promise<Agenda>;
-  storeAgenda(conferenceId: string, agenda: Agenda): Promise<void>;
+  getAgenda(conferenceId: ConferenceId): Promise<Maybe<Agenda>>;
+  storeAgenda(conferenceId: ConferenceId, agenda: Agenda): Promise<void>;
 }

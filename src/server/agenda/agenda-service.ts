@@ -1,3 +1,5 @@
+import { Maybe } from "../../utils/dynamo/maybe";
+import { ConferenceId } from "../conference/conference-id";
 import { AgendaReadService } from "./agenda-read-service";
 import { AgendaStore } from "./agenda-store";
 import { AgendaWriteService } from "./agenda-write-service";
@@ -5,15 +7,20 @@ import { Agenda, TimeSlotDetails, TrackDetails } from "./types";
 import { randomUUID } from "node:crypto";
 export class AgendaService implements AgendaWriteService, AgendaReadService {
   constructor(private readonly agendaStore: AgendaStore) {}
-  async getAgenda(conferenceId: string): Promise<Agenda> {
+  async getAgenda(conferenceId: ConferenceId): Promise<Maybe<Agenda>> {
     return await this.agendaStore.getAgenda(conferenceId);
   }
 
   async addTimeSlot(
-    conferenceId: string,
+    conferenceId: ConferenceId,
     timeSlotDetails: Omit<TimeSlotDetails, "timeSlotId">,
   ): Promise<TimeSlotDetails> {
-    const agenda = await this.agendaStore.getAgenda(conferenceId);
+    const maybeAgenda = await this.agendaStore.getAgenda(conferenceId);
+    if (!maybeAgenda.hasValue()) {
+      throw maybeAgenda.error;
+    }
+    const agenda = maybeAgenda.value;
+
     const timeSlotId = randomUUID();
     const details: TimeSlotDetails = {
       timeSlotId,
@@ -27,10 +34,14 @@ export class AgendaService implements AgendaWriteService, AgendaReadService {
   }
 
   async addTrack(
-    conferenceId: string,
+    conferenceId: ConferenceId,
     details: Omit<TrackDetails, "trackId">,
   ): Promise<TrackDetails> {
-    const agenda = await this.agendaStore.getAgenda(conferenceId);
+    const maybeAgenda = await this.agendaStore.getAgenda(conferenceId);
+    if (!maybeAgenda.hasValue()) {
+      throw maybeAgenda.error;
+    }
+    const agenda = maybeAgenda.value;
     const trackId = randomUUID();
     const trackDetails: TrackDetails = {
       location: details.location,
