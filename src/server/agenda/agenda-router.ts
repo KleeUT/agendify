@@ -5,6 +5,7 @@ import { config } from "../../config";
 // import { findMissingProperties } from "../../utils/findMissingProperties";
 import { handleError } from "../../utils/handleError";
 import { findMissingProperties } from "../../utils/findMissingProperties";
+import { ConferenceId } from "../conference/conference-id";
 
 const agendaRouter = Router({});
 
@@ -13,7 +14,12 @@ agendaRouter.get(":conferenceId/agenda", async (req, res, next) => {
     const { agendaReadService } = initialise(config);
 
     const { conferenceId } = req.params;
-    const agenda = agendaReadService.getAgenda(conferenceId);
+    const agenda = await agendaReadService.getAgenda(
+      ConferenceId.parse(conferenceId),
+    );
+    if (agenda.hasError()) {
+      res.status(500);
+    }
     res.json({ agenda });
   });
 });
@@ -30,7 +36,7 @@ agendaRouter.put(":conferenceId/agenda/track", (req, res, next) => {
         errMsg: `Missing properties for ${missing.join(", ")}`,
       });
     }
-    await agendaWriteService.addTrack(conferenceId, {
+    await agendaWriteService.addTrack(ConferenceId.parse(conferenceId), {
       name: body.name,
       location: body.location,
     });
@@ -50,7 +56,7 @@ agendaRouter.put(":conferenceId/agenda/timeSlot", (req, res, next) => {
       });
     }
 
-    await agendaWriteService.addTimeSlot(conferenceId, {
+    await agendaWriteService.addTimeSlot(ConferenceId.parse(conferenceId), {
       start: new Date(body.start),
       stop: new Date(body.stop),
     });
