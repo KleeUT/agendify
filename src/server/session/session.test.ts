@@ -70,7 +70,7 @@ describe("session", () => {
       },
     });
 
-    const session = await service.getSession(conferenceId, sessionId1);
+    const sessionMaybe = await service.getSession(conferenceId, sessionId1);
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
         input: {
@@ -83,7 +83,8 @@ describe("session", () => {
       }),
     );
 
-    expect(session).toEqual({
+    expect(sessionMaybe.hasValue()).toBeTruthy();
+    expect(sessionMaybe.value).toEqual({
       conferenceId,
       sessionId: sessionId1,
       speakerIds: [speakerId1],

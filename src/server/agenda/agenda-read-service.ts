@@ -1,4 +1,4 @@
-import { Maybe } from "../../utils/dynamo/maybe";
+import { Maybe } from "../../utils/maybe";
 import { ConferenceId } from "../conference/conference-id";
 import { Agenda } from "./types";
 

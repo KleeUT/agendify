@@ -17,6 +17,7 @@ import {
   ConferenceLocation,
 } from "../conference/conference";
 import { ConferenceId } from "../conference/conference-id";
+import { Maybe } from "../../utils/maybe";
 
 type DynamoConferenceReturnType = {
   suburb: {
@@ -71,7 +72,9 @@ export class DynamoConferenceStore implements ConferenceStore {
     await this.dynamoDocumentClient.send(putRequest);
   }
 
-  async getConference(conferenceId: ConferenceId): Promise<ConferenceDetails> {
+  async getConference(
+    conferenceId: ConferenceId,
+  ): Promise<Maybe<ConferenceDetails>> {
     const getRequest = new QueryCommand({
       TableName: this.config.conferenceTable,
       KeyConditionExpression: `pk = :pk AND begins_with(sk, :sk)`,
@@ -84,12 +87,14 @@ export class DynamoConferenceStore implements ConferenceStore {
     const queryResponse = await this.dynamoDocumentClient.send(getRequest);
 
     if (queryResponse.Items?.length === 1) {
-      return queryResponseToConferenceDetails(
-        queryResponse.Items[0] as DynamoConferenceReturnType,
+      return Maybe.withValue(
+        queryResponseToConferenceDetails(
+          queryResponse.Items[0] as DynamoConferenceReturnType,
+        ),
       );
     }
     console.log(`item not found for ${conferenceId}`);
-    throw new Error(`item not found for ${conferenceId}`);
+    return Maybe.withError(new Error(`item not found for ${conferenceId}`));
   }
   async getAllConferences(): Promise<ConferenceDetails[]> {
     const scanCommand = new ScanCommand({

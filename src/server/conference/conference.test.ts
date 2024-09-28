@@ -91,7 +91,8 @@ describe("conference", () => {
     mockSendFunction.mockReturnValue({
       Items: [returnedConference],
     });
-    const conference = await conferenceService.getConference(conferenceId1);
+    const conferenceMaybe =
+      await conferenceService.getConference(conferenceId1);
     expect(mockSendFunction).toHaveBeenCalledWith(
       expect.objectContaining({
         input: {
@@ -104,7 +105,8 @@ describe("conference", () => {
         },
       }),
     );
-    expect(conference).toEqual(expectedConference);
+    expect(conferenceMaybe.hasValue()).toEqual(true);
+    expect(conferenceMaybe.value).toEqual(expectedConference);
   });
 
   test("Create a conference", async () => {

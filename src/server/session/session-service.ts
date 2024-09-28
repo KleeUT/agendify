@@ -5,13 +5,14 @@ import { randomUUID } from "crypto";
 import { SessionWriteService } from "./session-write-service";
 import { SessionReadService } from "./session-read-service";
 import { SessionDetails } from "./session";
+import { Maybe } from "../../utils/maybe";
 
 export class SessionService implements SessionWriteService, SessionReadService {
   constructor(private readonly store: SessionStore) {}
   getSession(
     conferenceId: ConferenceId,
     sessionId: SessionId,
-  ): Promise<SessionDetails> {
+  ): Promise<Maybe<SessionDetails>> {
     return this.store.getSession(conferenceId, sessionId);
   }
   async saveSession(
