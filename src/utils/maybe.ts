@@ -5,7 +5,7 @@ export class Maybe<T> {
   ) {}
 
   get value(): T {
-    if (!this.value) {
+    if (!this._value) {
       throw new Error(`No value: ${this._error?.message}`);
     }
     return this._value!;
@@ -23,7 +23,7 @@ export class Maybe<T> {
   }
 
   hasValue() {
-    return !!this.value;
+    return !!this._value;
   }
 
   public static withValue<T>(value: T): Maybe<T> {

@@ -9,7 +9,7 @@ import { Agenda } from "./types";
 import { partitionKeyFor } from "../../utils/dynamo";
 import { ConferenceId } from "../conference/conference-id";
 import { NoItem } from "../../utils/dynamo/no-item";
-import { Maybe } from "../../utils/dynamo/maybe";
+import { Maybe } from "../../utils/maybe";
 
 type StoredAgenda = {
   pk: string;

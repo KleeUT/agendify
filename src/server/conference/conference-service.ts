@@ -8,6 +8,7 @@ import {
   ConferenceUpdateRequest,
 } from "./conference";
 import { ConferenceId } from "./conference-id";
+import { Maybe } from "../../utils/maybe";
 export class ConferenceService
   implements ConferenceWriteService, ConferenceReadService
 {
@@ -31,7 +32,9 @@ export class ConferenceService
     const conferences = await this.store.getAllConferences();
     return conferences;
   }
-  async getConference(conferenceId: ConferenceId): Promise<ConferenceDetails> {
+  async getConference(
+    conferenceId: ConferenceId,
+  ): Promise<Maybe<ConferenceDetails>> {
     const conferenceDetails = await this.store.getConference(conferenceId);
     return conferenceDetails;
   }

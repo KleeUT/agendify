@@ -1,9 +1,10 @@
+import { Maybe } from "../../utils/maybe";
 import { ConferenceDetails, ConferenceLocation } from "./conference";
 import { ConferenceId } from "./conference-id";
 
 export interface ConferenceStore {
   storeConference(details: ConferenceDetails): Promise<void>;
-  getConference(conferenceId: ConferenceId): Promise<ConferenceDetails>;
+  getConference(conferenceId: ConferenceId): Promise<Maybe<ConferenceDetails>>;
   getAllConferences(): Promise<Array<ConferenceDetails>>;
   deleteConference(conferenceId: ConferenceId): Promise<void>;
   updateConference(details: {

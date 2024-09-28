@@ -10,6 +10,8 @@ import { ConferenceId } from "../conference/conference-id";
 import { SessionId } from "../session/session-id";
 import { SessionDetails } from "../session/session";
 import { SpeakerId } from "../speaker/speaker-id";
+import { Maybe } from "../../utils/maybe";
+import { NoItem } from "../../utils/dynamo/no-item";
 
 type DynamoObject = {
   pk: string;
@@ -51,7 +53,7 @@ export class DynamoSessionStore implements SessionStore {
   async getSession(
     conferenceId: ConferenceId,
     sessionId: SessionId,
-  ): Promise<SessionDetails> {
+  ): Promise<Maybe<SessionDetails>> {
     const getCommand = new GetCommand({
       TableName: this.config.conferenceTable,
       Key: {
@@ -62,13 +64,21 @@ export class DynamoSessionStore implements SessionStore {
 
     const getResponse = await this.dynamoDocumentClient.send(getCommand);
     if (getResponse.Item) {
-      return convertDynamoObjectToDetails(
-        getResponse.Item as DynamoObject,
-        conferenceId,
+      return Maybe.withValue(
+        convertDynamoObjectToDetails(
+          getResponse.Item as DynamoObject,
+          conferenceId,
+        ),
       );
     }
     console.log(`item not found for ${conferenceId} speaker ${sessionId}`);
-    throw new Error(`item not found for ${conferenceId} speaker ${sessionId}`);
+    return Maybe.withError(
+      new NoItem(
+        `item not found for ${conferenceId} speaker ${sessionId}`,
+        "session",
+        [{ conferenceId: conferenceId }, { sessionId }],
+      ),
+    );
   }
 
   async getAllSessions(conferenceId: ConferenceId): Promise<SessionDetails[]> {
