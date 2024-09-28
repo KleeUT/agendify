@@ -52,7 +52,8 @@ describe("speaker service", () => {
       }),
     );
 
-    expect(returnedSpeaker).toEqual({
+    expect(returnedSpeaker.hasValue()).toEqual(true);
+    expect(returnedSpeaker.value).toEqual({
       bio: "bio",
       socials: ["https://twitter.com"],
       speakerId: speaker1Id,

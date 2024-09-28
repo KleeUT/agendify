@@ -15,6 +15,8 @@ import {
 import { ConferenceId } from "../conference/conference-id";
 import { SpeakerId } from "../speaker/speaker-id";
 import { SpeakerDetails } from "../speaker/speaker";
+import { Maybe } from "../../utils/maybe";
+import { NoItem } from "../../utils/dynamo/no-item";
 
 const SORT_KEY_PREFIX = "SPEAKER#";
 
@@ -50,7 +52,7 @@ export class DynamoSpeakerStore implements SpeakerStore {
   async getSpeaker(
     conferenceId: ConferenceId,
     speakerId: SpeakerId,
-  ): Promise<SpeakerDetails> {
+  ): Promise<Maybe<SpeakerDetails>> {
     const getCommand = new GetCommand({
       TableName: this.config.conferenceTable,
       Key: {
@@ -62,10 +64,18 @@ export class DynamoSpeakerStore implements SpeakerStore {
     const getResponse = await this.dynamoDocumentClient.send(getCommand);
     console.log(getResponse);
     if (getResponse.Item) {
-      return mapSpeakerModelToSpeakerDetails(getResponse.Item as SpeakerModel);
+      return Maybe.withValue(
+        mapSpeakerModelToSpeakerDetails(getResponse.Item as SpeakerModel),
+      );
     }
     console.log(`item not found for ${conferenceId} speaker ${speakerId}`);
-    throw new Error(`item not found for ${conferenceId} speaker ${speakerId}`);
+    return Maybe.withError(
+      new NoItem(
+        `item not found for ${conferenceId} speaker ${speakerId}`,
+        "speaker",
+        [],
+      ),
+    );
   }
 
   async getAllSpeakers(conferenceId: ConferenceId): Promise<SpeakerDetails[]> {

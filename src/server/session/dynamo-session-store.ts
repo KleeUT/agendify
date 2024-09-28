@@ -76,7 +76,7 @@ export class DynamoSessionStore implements SessionStore {
       new NoItem(
         `item not found for ${conferenceId} speaker ${sessionId}`,
         "session",
-        [],
+        [{ conferenceId: conferenceId }, { sessionId }],
       ),
     );
   }

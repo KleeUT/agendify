@@ -5,6 +5,7 @@ import { SpeakerReadService } from "./speaker-read-service";
 import { SpeakerDetails } from "./speaker";
 import { ConferenceId } from "../conference/conference-id";
 import { SpeakerId } from "./speaker-id";
+import { Maybe } from "../../utils/maybe";
 export class SpeakerService implements SpeakerWriteService, SpeakerReadService {
   constructor(private readonly speakerStore: SpeakerStore) {}
   async addSpeaker(
@@ -24,7 +25,7 @@ export class SpeakerService implements SpeakerWriteService, SpeakerReadService {
   getSpeaker(
     conferenceId: ConferenceId,
     speakerId: SpeakerId,
-  ): Promise<SpeakerDetails> {
+  ): Promise<Maybe<SpeakerDetails>> {
     return this.speakerStore.getSpeaker(conferenceId, speakerId);
   }
   getAllSpeakers(conferenceId: ConferenceId): Promise<Array<SpeakerDetails>> {
