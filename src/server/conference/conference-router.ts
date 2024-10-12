@@ -5,6 +5,13 @@ import { config } from "../../config";
 import { findMissingProperties } from "../../utils/findMissingProperties";
 import { handleError } from "../../utils/handleError";
 import { ConferenceId } from "./conference-id";
+import { ConferenceLocation } from "./conference";
+
+type ConferenceViewModel = {
+  name: string;
+  conferenceId: string;
+  location: ConferenceLocation;
+};
 
 const conferenceRouter = Router({});
 
@@ -13,7 +20,13 @@ conferenceRouter.get("/conference", async (req, res, next) => {
     const context = initialise(config);
     const allConferences =
       await context.conferenceReadService.getAllConferences();
-    res.json({ allConferences });
+    res.json({
+      allConferences: allConferences.map((conference) => ({
+        conferenceId: conference.conferenceId.toString(),
+        location: conference.location,
+        name: conference.name,
+      })),
+    });
   });
 });
 
@@ -23,17 +36,22 @@ conferenceRouter.get("/conference/:conferenceId", async (req, res, next) => {
     const conference = await context.conferenceReadService.getConference(
       ConferenceId.parse(req.params.conferenceId),
     );
-    res.json({ conference });
+    const vm: ConferenceViewModel = {
+      conferenceId: conference.value.conferenceId.toString(),
+      location: conference.value.location,
+      name: conference.value.name,
+    };
+    res.json({ conference: vm });
   });
 });
 
 conferenceRouter.delete("/conference/:conferenceId", async (req, res, next) => {
   await handleError(next, async () => {
     const context = initialise(config);
-    const conference = await context.conferenceWriteService.deleteConference(
+    await context.conferenceWriteService.deleteConference(
       ConferenceId.parse(req.params.conferenceId),
     );
-    res.json({ conference });
+    res.json({});
   });
 });
 
